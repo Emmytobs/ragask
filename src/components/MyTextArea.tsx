@@ -1,11 +1,17 @@
-import { useState } from "react";
+import { FormEvent, useState } from "react";
 import { Button } from "./MySendButton";
 
-export const Textarea = () => {
-  const [inputValue, setInputValue] = useState('');
-  const [isFocused, setIsFocused] = useState(false); 
+type TextareaProps = {
+  onAddMessage: (message: string) => void;
+};
 
-  const handleInputChange = (event: { target: { value: string; }; }) => {
+export const Textarea = (props: TextareaProps) => {
+  const { onAddMessage } = props;
+
+  const [inputValue, setInputValue] = useState("");
+  const [isFocused, setIsFocused] = useState(false);
+
+  const handleInputChange = (event: { target: { value: string } }) => {
     setInputValue(event.target.value);
   };
 
@@ -17,18 +23,23 @@ export const Textarea = () => {
     setIsFocused(false);
   };
 
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    onAddMessage(inputValue);
+    setInputValue("");
+  };
+
   return (
-    <div className="relative flex items-center">
+    <form className="relative flex items-center" onSubmit={handleSubmit}>
       <input
-        type="text"
         placeholder="Ask your document"
-        className="flex-auto px-4 py-4 text-gray-700 bg-transparent border border-black rounded-full focus:outline-none focus:ring-1 focus:ring-black placeholder:italic pl-8"
+        className="flex-auto px-4 py-4 text-gray-700 bg-transparent border border-black rounded-full focus:outline-none focus:ring-1 focus:ring-black placeholder:italic"
         onChange={handleInputChange}
-        onFocus={handleInputFocus} 
-        onBlur={handleInputBlur} 
+        onFocus={handleInputFocus}
+        onBlur={handleInputBlur}
         value={inputValue}
       />
       <Button disabled={!inputValue} focus={isFocused} />
-    </div>
+    </form>
   );
 };

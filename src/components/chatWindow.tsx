@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import ChatMessage, { Role } from "@/components/ChatMessage";
 import { Textarea } from "@/components/MyTextArea";
 
@@ -8,7 +8,7 @@ type ChatMessageData = {
 };
 
 const ChatWindow = () => {
-  const chatMessageData: Array<ChatMessageData> = new Array(15)
+  const initialMessages: ChatMessageData[] = new Array(15)
     .fill(null)
     .map((_, index) => {
       return {
@@ -18,7 +18,20 @@ const ChatWindow = () => {
       };
     });
 
+  const [chatMessageData, setChatMessageData] =
+    useState<ChatMessageData[]>(initialMessages);
+
   const chatIsEmpty = chatMessageData.length == 0;
+
+  const onAddMessage = (message: string) => {
+    setChatMessageData((prevMessages) => [
+      ...prevMessages,
+      {
+        message,
+        role: "user",
+      },
+    ]);
+  };
 
   return (
     <div className="flex flex-col gap-y-2 h-full px-4">
@@ -33,7 +46,7 @@ const ChatWindow = () => {
         {chatIsEmpty ? <div>Start by sending a message!</div> : null}
       </div>
       <div className="flex-[0_0_60px] bg-white py-4">
-        <Textarea />
+        <Textarea onAddMessage={onAddMessage} />
       </div>
     </div>
   );
