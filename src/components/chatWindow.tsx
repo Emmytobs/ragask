@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import ChatMessage, { Role } from "@/components/ChatMessage";
 import { Textarea } from "@/components/MyTextArea";
 
@@ -8,6 +8,8 @@ type ChatMessageData = {
 };
 
 const ChatWindow = () => {
+  const chatMessagesRef = useRef<HTMLDivElement>(null);
+
   const initialMessages: ChatMessageData[] = new Array(15)
     .fill(null)
     .map((_, index) => {
@@ -21,6 +23,10 @@ const ChatWindow = () => {
   const [chatMessageData, setChatMessageData] =
     useState<ChatMessageData[]>(initialMessages);
 
+  useEffect(() => {
+    scrollToBottomOfChatWindow();
+  }, [chatMessageData.length]);
+
   const chatIsEmpty = chatMessageData.length == 0;
 
   const onAddMessage = (message: string) => {
@@ -33,12 +39,25 @@ const ChatWindow = () => {
     ]);
   };
 
+  const scrollToBottomOfChatWindow = () => {
+    if (chatMessagesRef.current) {
+      const chatWindow = chatMessagesRef.current;
+      const { scrollHeight } = chatWindow;
+
+      chatWindow.scrollTo({
+        behavior: "smooth",
+        top: scrollHeight,
+      });
+    }
+  };
+
   return (
     <div className="flex flex-col gap-y-2 h-full px-4">
       <div
         className={`flex-1 flex flex-col justify-${
           chatIsEmpty ? "center" : "start"
         } overflow-auto py-4 gap-y-4`}
+        ref={chatMessagesRef}
       >
         {chatMessageData.map(({ role, message }, index) => (
           <ChatMessage key={index} role={role} message={message} />
