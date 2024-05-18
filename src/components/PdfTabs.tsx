@@ -41,9 +41,9 @@ export function TabsDemo() {
         <TabsList className="items-center w-full justify-stretch">
           {pdfFiles.map((file) => (
             <TabsTrigger key={file.value} value={file.value} className="flex-1">
-              <div className="flex w-full justify-start items-center gap-x-2">
-                <X className="w-4 h-4" />
+              <div className="flex w-full justify-between items-center gap-x-2">
                 {file.name}
+                <X className="w-4 h-4" />
               </div>
             </TabsTrigger>
           ))}
