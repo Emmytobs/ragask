@@ -3,46 +3,22 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 import { X } from "lucide-react";
 import { PDF } from "./pdf";
+import { PDFFile } from "@/app/page";
 
-export function TabsDemo() {
-  const pdfFiles = [
-    {
-      value: "first",
-      name: "First.pdf",
-    },
-    {
-      value: "second",
-      name: "Second.pdf",
-    },
-    {
-      value: "third",
-      name: "Third.pdf",
-    },
-    {
-      value: "fourth",
-      name: "Fourth.pdf",
-    },
-    {
-      value: "fifth",
-      name: "Fifth.pdf",
-    },
-    // {
-    //   value: "sixth",
-    //   name: "Sixth.pdf",
-    // },
-    // {
-    //   value: "seven",
-    //   name: "Seventh.pdf",
-    // },
-  ];
+type PdfTabsProps = {
+  pdfFiles: PDFFile[];
+};
+
+export function PdfTabs(props: PdfTabsProps) {
+  const { pdfFiles } = props;
   return (
-    <Tabs defaultValue={pdfFiles[0].value}>
+    <Tabs defaultValue={pdfFiles[0].name}>
       <ScrollArea className="rounded-md">
         <TabsList className="items-center w-full justify-stretch">
           {pdfFiles.map((file) => (
-            <TabsTrigger key={file.value} value={file.value} className="flex-1">
+            <TabsTrigger key={file.name} value={file.name} className="flex-1">
               <div className="flex w-full justify-between items-center gap-x-2">
-                {file.name}
+                <span className="text-ellipsis">{file.name}</span>
                 <X className="w-4 h-4" />
               </div>
             </TabsTrigger>
@@ -51,8 +27,8 @@ export function TabsDemo() {
         <ScrollBar orientation="horizontal" />
       </ScrollArea>
       {pdfFiles.map((files) => (
-        <TabsContent key={files.value} value={files.value}>
-          <PDF></PDF>
+        <TabsContent key={files.name} value={files.name}>
+          <PDF fileUrl={files.url}></PDF>
         </TabsContent>
       ))}
     </Tabs>

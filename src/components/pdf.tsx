@@ -19,7 +19,13 @@ import "@react-pdf-viewer/toolbar/lib/styles/index.css";
 
 import { Worker } from "@react-pdf-viewer/core";
 
-const PDF = () => {
+type PDFProps = {
+  fileUrl: string;
+};
+
+const PDF = (props: PDFProps) => {
+  const { fileUrl } = props;
+
   const toolbarPluginInstance = toolbarPlugin({});
   const { Toolbar } = toolbarPluginInstance;
 
@@ -34,8 +40,11 @@ const PDF = () => {
       >
         <Toolbar />
         <Viewer
-          fileUrl="https://aimaasdev.blob.core.windows.net/deepdocuments/2010-toyota-matrix-73.pdf?sp=r&st=2024-05-18T01:12:21Z&se=2024-05-18T09:12:21Z&spr=https&sv=2022-11-02&sr=b&sig=LTsFWygIsiFlIr0P8ItjGnR3vWcs9fuDJdIQe0A08jg%3D"
+          fileUrl={fileUrl}
           plugins={[toolbarPluginInstance]}
+          onDocumentLoad={(e) => {
+            console.log("e", e);
+          }}
           // defaultScale={1}
           // https://portal.azure.com/#view/Microsoft_Azure_Storage/BlobPropertiesBladeV2/storageAccountId/%2Fsubscriptions%2Fd76a23b6-c31e-4ab9-83dc-1b27c3ce71b1%2FresourceGroups%2Faimaas-dev%2Fproviders%2FMicrosoft.Storage%2FstorageAccounts%2Faimaasdev/path/deepdocuments%2F2010-toyota-matrix-73.pdf/isDeleted~/false/tabToload~/0
         />

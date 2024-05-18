@@ -9,7 +9,7 @@ function ChatMessage({ role, message }: { role: Role; message: string }) {
   return (
     <div className="flex flex-start mb-[12px] px-6">
       {role === "user" ? (
-        <div className="max-w-[900px] p-3 bg-gray-100 rounded-[20px] ml-auto">
+        <div className="max-w-[900px] p-3 bg-gray-50 rounded-[20px] ml-auto">
           {message}
         </div>
       ) : (
