@@ -17,10 +17,10 @@ export default function Home() {
         <SideNav />
       </div>
       <div className="flex ml-16 overflow-hidden">
-        <div className="flex-auto w-6/12 h-screen border">
+        <div className="flex-1 h-screen border">
           <TabsDemo />
         </div>
-        <div className="flex-auto w-6/12 h-screen">
+        <div className="flex-1 h-screen">
           <ChatWindow />
         </div>
       </div>

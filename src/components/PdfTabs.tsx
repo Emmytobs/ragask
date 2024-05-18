@@ -1,5 +1,5 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 import { X } from "lucide-react";
 import { PDF } from "./pdf";
@@ -26,34 +26,34 @@ export function TabsDemo() {
       value: "fifth",
       name: "Fifth.pdf",
     },
-    {
-      value: "sixth",
-      name: "Sixth.pdf",
-    },
-    {
-      value: "seven",
-      name: "Seventh.pdf",
-    },
+    // {
+    //   value: "sixth",
+    //   name: "Sixth.pdf",
+    // },
+    // {
+    //   value: "seven",
+    //   name: "Seventh.pdf",
+    // },
   ];
   return (
-    <Tabs defaultValue={pdfFiles[3].value}>
-      <ScrollArea className="ml-16 w-9/12 rounded-md">
-      <TabsList className="items-center">
-        {pdfFiles.map((file) => (
-          <TabsTrigger key={file.value} value={file.value}>
-          <div className="flex items-center space-x-2">
-            <X className="w-4 h-4" />
-            {file.name}
-          </div>
-          </TabsTrigger>
-        ))}
-      </TabsList>
-      <ScrollBar orientation="horizontal" />
+    <Tabs defaultValue={pdfFiles[0].value}>
+      <ScrollArea className="rounded-md">
+        <TabsList className="items-center w-full justify-stretch">
+          {pdfFiles.map((file) => (
+            <TabsTrigger key={file.value} value={file.value} className="flex-1">
+              <div className="flex w-full justify-start items-center gap-x-2">
+                <X className="w-4 h-4" />
+                {file.name}
+              </div>
+            </TabsTrigger>
+          ))}
+        </TabsList>
+        <ScrollBar orientation="horizontal" />
       </ScrollArea>
       {pdfFiles.map((files) => (
-      <TabsContent key= {files.value} value={files.value}>
-        <PDF></PDF>
-      </TabsContent>
+        <TabsContent key={files.value} value={files.value}>
+          <PDF></PDF>
+        </TabsContent>
       ))}
     </Tabs>
   );
