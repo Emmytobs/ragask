@@ -1,17 +1,14 @@
 "use client";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/MyTextArea";
-import ChatMessage from "@/components/ChatMessage";
+
 import SideNav from "@/components/sideNav";
-import { Separator } from "@/components/ui/separator";
-import DocumentList from "@/components/documentList";
 import ChatWindow from "@/components/chatWindow";
-import { PDF } from "@/components/pdf";
 import "@react-pdf-viewer/core/lib/styles/index.css";
 import { PdfTabs } from "@/components/PdfTabs";
 import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { Upload } from "lucide-react";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { firebaseStorage } from "./firebase";
 
 export type PDFFile = {
   name: string;
@@ -21,17 +18,29 @@ export type PDFFile = {
 export default function Home() {
   const [pdfFiles, setPdfFiles] = useState<PDFFile[]>([]);
 
-  const onFileUploaded = (files: File[]) => {
-    const pdfFiles: PDFFile[] = files.reduce(
-      (acc: PDFFile[], currFile: File) => {
-        const url = URL.createObjectURL(currFile);
-        const name = currFile.name;
-        acc.push({ name, url });
-        return acc;
-      },
-      []
-    );
+  const uploadToCloudStorage = async (
+    file: File
+  ): Promise<{ url: string } | undefined> => {
+    const storageRef = ref(firebaseStorage, "document.pdf"); // use just a generic file name
+    try {
+      await uploadBytes(storageRef, file);
+      const url = await getDownloadURL(storageRef);
+      return { url };
+    } catch (error) {
+      console.log({ error });
+    }
+  };
 
+  const onFileUploaded = async (files: File[]) => {
+    const fileUrls: Array<Pick<PDFFile, "url">> = await Promise.all(
+      files.map(
+        (file) => uploadToCloudStorage(file) as Promise<{ url: string }>
+      )
+    );
+    const pdfFiles: PDFFile[] = files.map(({ name }, index) => ({
+      name,
+      url: fileUrls[index].url,
+    }));
     setPdfFiles(pdfFiles);
   };
 
