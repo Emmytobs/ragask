@@ -1,7 +1,8 @@
 {
-    "editor.defaultFormatter": "ms-python.pylint",
+    "editor.defaultFormatter": "ms-python.black-formatter",
     "python.testing.pytestEnabled": true,
     "editor.autoIndent": "advanced",
     "editor.autoClosingQuotes": "always",
     "editor.tabSize": 4,
+    "editor.formatOnSave": true
 }

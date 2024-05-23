@@ -4,9 +4,9 @@ from fastapi import FastAPI
 from fastapi.concurrency import asynccontextmanager
 
 
-from api.database import init_db
-from api.routes.files import router as FileRouter
-from api.routes.users import router as UserRouter
+from database import init_db
+from routes.files import router as FileRouter
+from routes.users import router as UserRouter
 
 
 from dotenv import load_dotenv

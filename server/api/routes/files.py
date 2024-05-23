@@ -3,11 +3,9 @@
 from fastapi import APIRouter
 from api.models.files import File
 
-
 router = APIRouter()
 
-
-@router.post("/upload", response_description="Review added to the database")
+@router.post("/upload", response_description="Upload files")
 async def upload_file(file: File) -> File:
     print("Im here")
     result = await file.insert()
