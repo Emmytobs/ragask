@@ -1,0 +1,7 @@
+{
+    "editor.defaultFormatter": "ms-python.pylint",
+    "python.testing.pytestEnabled": true,
+    "editor.autoIndent": "advanced",
+    "editor.autoClosingQuotes": "always",
+    "editor.tabSize": 4,
+}
