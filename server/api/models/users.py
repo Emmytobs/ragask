@@ -11,5 +11,10 @@ class SubscriptionDetails(Enum):
 
 class User(Document):
     name: str
-    subscription_details: SubscriptionDetails
-    last_accessed_pdfs: List[PydanticObjectId]
+    email: str
+    avatar: str
+    subscription_details: str = SubscriptionDetails.BASIC
+    last_accessed_pdfs: list[PydanticObjectId] = []
+
+    class Settings:
+        name = "users"
