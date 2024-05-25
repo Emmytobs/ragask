@@ -1,4 +1,4 @@
-"""Configuration settings for the server"""
+"""Configuration settings for the server. This settings are loaded from .env"""
 
 from pydantic_settings import BaseSettings
 
