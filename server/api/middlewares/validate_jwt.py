@@ -5,23 +5,39 @@ import jwt
 
 from api.models.users import User
 from api.config import ENV_VARS
+from api.app_logging import logger
 
 from google.oauth2 import id_token
 from google.auth.transport import requests
 from google.auth.exceptions import InvalidValue
 
 from fastapi import HTTPException, Request, status
+from pymongo.errors import DuplicateKeyError
 
 
 async def _get_or_add_user(user_info: Any):
-    user = await User.find_one({"email": user_info["email"]})
-    if not user:
+    email = user_info["email"]
+    name = user_info["name"]
+    picture = user_info["picture"]
+
+    user = await User.find_one({"email": email})
+
+    if user is None:
         user = User(
-            name=user_info["name"],
-            avatar=user_info["picture"],
-            email=user_info["email"],
+            name=name,
+            avatar=picture,
+            email=email,
         )
-        await User.insert_one(user)
+        try:
+            await user.insert()
+        except DuplicateKeyError as e:
+            error_message = f"User with email {email} already exists"
+
+            logger.error(error_message)
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=error_message,
+            ) from e
 
     return user
 

@@ -2,9 +2,10 @@
 
 from enum import Enum
 from beanie import Document, PydanticObjectId
+from pymongo import IndexModel
 
 
-class SubscriptionDetails(Enum):
+class SubscriptionDetails(str, Enum):
     BASIC = "basic"
     STANDARD = "standard"
     UNLIMITED = "unlimited"
@@ -19,3 +20,7 @@ class User(Document):
 
     class Settings:
         name = "users"
+        validate_on_save = True
+        indexes = [
+            IndexModel("email", unique=True),
+        ]
