@@ -9,12 +9,12 @@ from google.auth.transport import requests
 from fastapi import HTTPException, Request, status
 
 
-async def get_user_from_db(email: str):
+async def _get_user_from_db(email: str):
     user = await User.find_one({"email": email})
     return user
 
 
-def verify_google_token(token: str):
+def _verify_google_token(token: str):
     user_info = id_token.verify_oauth2_token(
         token, requests.Request(), settings.google_client_id
     )
@@ -41,8 +41,8 @@ async def validate_jwt(request: Request):
         )
 
     try:
-        user_info = verify_google_token(token=token)
-        request.state.user = await get_user_from_db(user_info["email"])
+        user_info = _verify_google_token(token=token)
+        request.state.user = await _get_user_from_db(user_info["email"])
     except jwt.ExpiredSignatureError as exc:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Token has expired"
