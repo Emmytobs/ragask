@@ -23,6 +23,7 @@ class File(Document):
 
     class Settings:
         name = "files"
+        validate_on_save = True
 
 
 class CreateFile(BaseModel):
