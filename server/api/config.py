@@ -12,4 +12,4 @@ class Settings(BaseSettings):
     google_client_secret: str
 
 
-settings = Settings()
+ENV_VARS = Settings()

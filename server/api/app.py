@@ -2,7 +2,7 @@
 
 import uuid
 
-from api.config import settings
+from api.config import ENV_VARS
 from api.database import init_db
 from api.routes.api_v1 import api_v1_router
 from api.app_logging import logger
@@ -36,7 +36,7 @@ app = FastAPI(lifespan=lifespan)
 app.add_middleware(SessionMiddleware, secret_key=uuid.uuid4().hex)
 
 
-origins = [settings.frontend_url]
+origins = [ENV_VARS.frontend_url]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,

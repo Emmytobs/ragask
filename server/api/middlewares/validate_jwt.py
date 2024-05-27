@@ -1,8 +1,10 @@
+"""Middleware for validating JWT tokens"""
+
 from typing import Any
 import jwt
 
 from api.models.users import User
-from api.config import settings
+from api.config import ENV_VARS
 
 from google.oauth2 import id_token
 from google.auth.transport import requests
@@ -26,7 +28,7 @@ async def _get_or_add_user(user_info: Any):
 
 def _verify_google_token(token: str):
     user_info = id_token.verify_oauth2_token(
-        token, requests.Request(), settings.google_client_id
+        token, requests.Request(), ENV_VARS.google_client_id
     )
     return user_info
 
