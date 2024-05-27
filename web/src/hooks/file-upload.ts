@@ -2,18 +2,24 @@ import { firebaseConfig } from "@/app/firebase";
 import { IFile } from "@/interfaces/IFile";
 import { uploadToCloudStorage } from "@/lib/storage-utils";
 import useAxios from "@/hooks/useAxios";
-import { useState } from "react";
-import { useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
 
 
 export const useFileUpload = () => {
   const [files, setFiles] = useState<IFile[]>([]);
   const { axios } = useAxios()
-  const {data: session} = useSession()
+
+  useEffect(() => {
+    const uploadFiles = async () => {
+      if (axios && files.length > 0) {
+        await axios.post('/files/upload', { files });
+      }
+    };
+    uploadFiles();
+  }, [axios, files]);
 
 
   const onFileUploaded = async (files: File[]) => {
-
     const fileUrls: Array<Pick<IFile, "storage_url">> = await Promise.all(
       files.map(
         (file) => {
@@ -30,7 +36,7 @@ export const useFileUpload = () => {
       type,
       size
     }));
-    await axios?.post('/files/upload', { files: newFiles })
+
     setFiles(newFiles);
     return { files: newFiles };
   };

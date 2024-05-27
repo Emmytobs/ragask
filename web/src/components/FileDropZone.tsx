@@ -30,4 +30,4 @@ function FileDropzone({
   );
 }
 
-export {FileDropzone}
+export { FileDropzone }

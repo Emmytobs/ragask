@@ -50,7 +50,7 @@ function SideNav() {
                 <AvatarImage src={session?.user_info?.avatar ?? ""} alt="@shadcn" />
                 <AvatarFallback>{getInitials(session?.user?.name ?? "")}</AvatarFallback>
               </Avatar>
-            }/>
+            } />
           </div>
           <div className="mt-4 ml-1" style={{ cursor: "pointer" }}>
             <MyToolTip text="Log in" content={
