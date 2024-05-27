@@ -1,7 +1,7 @@
 """API version 1 routing configuration."""
 
 from fastapi import APIRouter
-from api.routes.api_v1_routes import users, files
+from api.routes import users, files
 
 
 api_v1_router = APIRouter()

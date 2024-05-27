@@ -4,7 +4,7 @@ import uuid
 
 from api.config import settings
 from api.database import init_db
-from api.routes.api_v1_routes.api_v1 import api_v1_router
+from api.routes.api_v1 import api_v1_router
 from api.app_logging import logger
 from api.middlewares.validate_jwt import validate_jwt
 
