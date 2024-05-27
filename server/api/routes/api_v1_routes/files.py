@@ -10,3 +10,7 @@ router = APIRouter()
 async def upload_file(file: File) -> File:
     result = await file.insert()
     return result
+
+
+# @router.post('/embedded')
+# async def extract_embeddings(file: File) -> dict:

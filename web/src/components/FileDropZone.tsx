@@ -2,7 +2,7 @@ import { Upload } from "lucide-react";
 import { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 
-export function FileDropzone({
+function FileDropzone({
   onFileUploaded,
 }: {
   onFileUploaded: (uploadedFiles: File[]) => void;
@@ -29,3 +29,5 @@ export function FileDropzone({
     </div>
   );
 }
+
+export {FileDropzone}

@@ -9,6 +9,7 @@ import {
   LogIn,
 } from "lucide-react";
 import { Logo } from "./Logo";
+import { signIn } from "next-auth/react";
 
 function SideNav() {
   return (
@@ -38,7 +39,7 @@ function SideNav() {
             <User color="black" />
           </div>
           <div className="mt-4">
-            <LogIn color="black" />
+            <LogIn color="black" onClick={() => signIn("google")}/>
           </div>
         </div>
       </div>

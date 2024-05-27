@@ -1,5 +1,6 @@
+"""Module for defining user-related database models."""
+
 from enum import Enum
-from typing import List
 from beanie import Document, PydanticObjectId
 
 

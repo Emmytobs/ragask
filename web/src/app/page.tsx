@@ -4,10 +4,10 @@ import SideNav from "../components/sideNav";
 import ChatWindow from "../components/chatWindow";
 import "@react-pdf-viewer/core/lib/styles/index.css";
 import { PdfTabs } from "../components/PdfTabs";
-import { useState } from "react";
+import {  useState } from "react";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { firebaseStorage, firebaseConfig } from "./firebase";
-import { FileDropzone } from "@/components/FileDropZone";
+import  {FileDropzone}  from "@/components/FileDropZone";
 
 export type PDFFile = {
   name: string;
@@ -29,7 +29,7 @@ const uploadToCloudStorage = async (
 
 export default function Home() {
   const [pdfFiles, setPdfFiles] = useState<PDFFile[]>([]);
-
+  
   const onFileUploaded = async (files: File[]) => {
     const fileUrls: Array<Pick<PDFFile, "url">> = await Promise.all(
       files.map(

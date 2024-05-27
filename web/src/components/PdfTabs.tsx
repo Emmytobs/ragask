@@ -3,10 +3,11 @@ import { ScrollArea, ScrollBar } from "./ui/scroll-area";
 
 import { X } from "lucide-react";
 import { PDF } from "./pdf";
-import { FileDropzone, PDFFile } from "../app/page";
+import {  PDFFile } from "../app/page";
 import { useState } from "react";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { firebaseStorage } from "../app/firebase";
+import { FileDropzone } from "./FileDropZone";
 
 type PdfTabsProps = {
   pdfFiles: PDFFile[];
