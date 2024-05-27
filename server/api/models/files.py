@@ -27,7 +27,7 @@ class File(Document):
 
 class CreateFile(BaseModel):
     name: str
-    is_indexed: bool
+    is_indexed: bool = False
     storage_id: str
     storage_url: str
     created_at: datetime = datetime.now()

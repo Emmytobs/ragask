@@ -1,45 +1,46 @@
 import { firebaseConfig } from "@/app/firebase";
-import { IFile } from "@/interfaces/IFile";
+import { ICreateFile } from "@/interfaces/IFile";
 import { uploadToCloudStorage } from "@/lib/storage-utils";
 import useAxios from "@/hooks/useAxios";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 
 export const useFileUpload = () => {
-  const [files, setFiles] = useState<IFile[]>([]);
+  const [filesState, setFilesState] = useState<ICreateFile[]>([]);
   const { axios } = useAxios()
 
-  useEffect(() => {
-    const uploadFiles = async () => {
-      if (axios && files.length > 0) {
-        await axios.post('/files/upload', { files });
-      }
-    };
-    uploadFiles();
-  }, [axios, files]);
+  const uploadFiles = async (files: ICreateFile[]) => {
+    if (files.length > 0) {
+      await axios?.post('/files/upload', { files: [...files] });
+    }
+  };
 
 
   const onFileUploaded = async (files: File[]) => {
-    const fileUrls: Array<Pick<IFile, "storage_url">> = await Promise.all(
+    const filesWithStorageInfo: ICreateFile[] = await Promise.all(
       files.map(
-        (file) => {
-          return uploadToCloudStorage(file) as Promise<{ storage_url: string }>
+        async (file) => {
+          const result = await uploadToCloudStorage(file);
+          if (!result) {
+            throw new Error("Failed to upload to cloud storage");
+          }
+          const { storage_url } = result;
+          const { name, type, size } = file;
+
+          return {
+            name,
+            storage_url,
+            storage_id: firebaseConfig.storageBucket!,
+            type,
+            size
+          };
         }
       )
     );
-
-    const newFiles: IFile[] = files.map(({ name, type, size }, index) => ({
-      name,
-      storage_url: fileUrls[index].storage_url,
-      is_indexed: false,
-      storage_id: firebaseConfig.storageBucket!,
-      type,
-      size
-    }));
-
-    setFiles(newFiles);
-    return { files: newFiles };
+    await uploadFiles(filesWithStorageInfo)
+    setFilesState(filesWithStorageInfo);
+    return { files: filesWithStorageInfo };
   };
 
-  return { files, onFileUploaded };
+  return { files: filesState, onFileUploaded };
 };

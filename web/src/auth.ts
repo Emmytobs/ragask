@@ -3,6 +3,7 @@ import Google from "next-auth/providers/google"
 import { ExtendedSession, IUser } from "./session";
 import axios from "axios";
 
+let cachedSession: ExtendedSession | null = null;
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [Google],
@@ -15,6 +16,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return token;
     },
     async session({ session, token, user }) {
+      if (cachedSession && cachedSession.user?.email === session.user?.email) {
+        return cachedSession;
+      }
+    
       const customSession = session as ExtendedSession;
       customSession.jwt = token.jwt as string;
       const host = process.env.NEXT_PUBLIC_BASE_URL;
@@ -22,9 +27,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         headers: {
           'Authorization': `Bearer ${customSession?.jwt}`
         }
-      })).data
-      customSession.user_info = userInDb
-      return customSession as Session;
+      })).data;
+      customSession.user_info = userInDb;
+    
+      cachedSession = customSession;
+      return customSession;
     }
   }
 });
