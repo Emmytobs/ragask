@@ -1,8 +1,14 @@
 """Module for handling file-related routes in the API."""
 
+from typing import List
+from beanie import PydanticObjectId
 from fastapi import APIRouter, Request
 from api.models.files import CreateFile, File
 from pydantic import BaseModel
+
+from langchain_core.documents import Document
+from langchain_community.document_loaders import PyPDFLoader
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 router = APIRouter()
 
@@ -34,5 +40,18 @@ async def upload_file(files: Files, request: Request):
     }
 
 
-# @router.post('/embedded')
-# async def extract_embeddings(file: File) -> dict:
+@router.get("/embed/{file_id}")
+async def extract_embeddings(file_id: str) -> List[Document]:
+    file = await File.find_one({"_id": PydanticObjectId(file_id)})
+
+    if file and file.type == "application/pdf":
+        loader = PyPDFLoader(file.storage_url)
+        data = await loader.aload()
+
+        text_splitter = RecursiveCharacterTextSplitter(
+            chunk_size=1000, chunk_overlap=150
+        )
+
+        docs = text_splitter.split_documents(data)
+
+        return docs

@@ -22,7 +22,7 @@ class File(Document):
     size: int
 
     class Settings:
-        name = "users"
+        name = "files"
 
 
 class CreateFile(BaseModel):

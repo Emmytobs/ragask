@@ -1,3 +1,4 @@
+from typing import Any
 import jwt
 
 from api.models.users import User
@@ -10,8 +11,16 @@ from google.auth.exceptions import InvalidValue
 from fastapi import HTTPException, Request, status
 
 
-async def _get_user_from_db(email: str):
-    user = await User.find_one({"email": email})
+async def _get_or_add_user(user_info: Any):
+    user = await User.find_one({"email": user_info["email"]})
+    if not user:
+        user = User(
+            name=user_info["name"],
+            avatar=user_info["picture"],
+            email=user_info["email"],
+        )
+        await User.insert_one(user)
+
     return user
 
 
@@ -43,7 +52,7 @@ async def validate_jwt(request: Request):
 
     try:
         user_info = _verify_google_token(token=token)
-        request.state.user = await _get_user_from_db(user_info["email"])
+        request.state.user = await _get_or_add_user(user_info)
     except jwt.ExpiredSignatureError as exc:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Token has expired"
