@@ -31,9 +31,6 @@ const PDF = (props: PDFProps) => {
         <Viewer
           fileUrl={fileUrl}
           plugins={[toolbarPluginInstance]}
-          onDocumentLoad={(e) => {
-            console.log("e", e);
-          }}
         />
       </div>
     </Worker>

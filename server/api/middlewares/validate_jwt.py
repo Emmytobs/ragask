@@ -5,6 +5,7 @@ from api.config import settings
 
 from google.oauth2 import id_token
 from google.auth.transport import requests
+from google.auth.exceptions import InvalidValue
 
 from fastapi import HTTPException, Request, status
 
@@ -51,3 +52,7 @@ async def validate_jwt(request: Request):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"
         ) from exc
+    except InvalidValue as invalid_value:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail=str(invalid_value)
+        ) from invalid_value

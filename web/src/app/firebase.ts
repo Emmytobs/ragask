@@ -5,7 +5,7 @@ import * as dotenv from "dotenv"
 dotenv.config()
 
 const firebaseConfig: FirebaseOptions = {
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET!
 }
 
 
