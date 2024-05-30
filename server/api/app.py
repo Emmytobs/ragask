@@ -2,11 +2,11 @@
 
 import uuid
 
-from api.config import ENV_VARS
-from api.database import init_db
-from api.routes.api_v1 import api_v1_router
-from api.app_logging import logger
-from api.middlewares.validate_jwt import validate_jwt
+from config import ENV_VARS
+from database import init_db
+from routes.api_v1 import api_v1_router
+from app_logging import logger
+from middlewares.validate_jwt import validate_jwt
 
 from fastapi import Depends, FastAPI
 from fastapi.concurrency import asynccontextmanager

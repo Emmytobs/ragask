@@ -1,7 +1,7 @@
 """Module for initializing the database connection and setting up Beanie with FastAPI."""
 
-from api.models import files, users
-from api.config import ENV_VARS
+from models import files, users
+from config import ENV_VARS
 
 from beanie import init_beanie
 from motor.motor_asyncio import AsyncIOMotorClient

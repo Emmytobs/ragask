@@ -3,7 +3,7 @@
 from typing import List
 from beanie import PydanticObjectId
 from fastapi import APIRouter, Request
-from api.models.files import CreateFile, File
+from models.files import CreateFile, File
 from pydantic import BaseModel
 
 from langchain_core.documents import Document

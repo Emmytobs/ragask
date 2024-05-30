@@ -3,9 +3,9 @@
 from typing import Any
 import jwt
 
-from api.models.users import User
-from api.config import ENV_VARS
-from api.app_logging import logger
+from models.users import User
+from config import ENV_VARS
+from app_logging import logger
 
 from google.oauth2 import id_token
 from google.auth.transport import requests
