@@ -1,4 +1,14 @@
-# CORS Error Fix
+# Docs
+
+## Run with Docker
+
+Remember to add `.env` file to your project. Check out `.env.sample`
+
+`docker build -t myserver .`
+
+`docker run -p 8000:8000 --env-file .env myserver`
+
+## CORS Error Fix For Files Access on Google Storage bucket
 
 To fix cors error when trying to view pdf
 
