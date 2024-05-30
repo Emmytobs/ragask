@@ -2,7 +2,7 @@
 
 ## Run with Docker
 
-Remember to add `.env` file to your project. Check out `.env.sample`
+Remember to add `.env` file to your project. Check out `.env.sample` in `server`
 
 `docker build -t myserver .`
 
