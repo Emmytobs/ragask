@@ -13,7 +13,6 @@ class File(Document):
     name: str
     is_indexed: bool
     storage_id: str
-    storage_url: str
     created_at: datetime = datetime.now()
     updated_at: datetime = datetime.now()
     num_pages: int
@@ -30,9 +29,6 @@ class CreateFile(BaseModel):
     name: str
     is_indexed: bool = False
     storage_id: str
-    storage_url: str
-    created_at: datetime = datetime.now()
-    updated_at: datetime = datetime.now()
     num_pages: int = 0
     uploaded_by: PydanticObjectId | None = None
     type: str

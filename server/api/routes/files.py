@@ -1,43 +1,53 @@
 """Module for handling file-related routes in the API."""
 
+from io import BytesIO
 from typing import List
 from beanie import PydanticObjectId
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, HTTPException, Request
+
+from app_logging import logger
 from models.files import CreateFile, File
-from pydantic import BaseModel
+from cloud import get_storage_bucket
 
 from langchain_core.documents import Document
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
+from pypdf import PdfReader
+
 router = APIRouter()
 
 
-class Files(BaseModel):
-    files: list[CreateFile]
+def _get_num_pages_from_pdf(file: File) -> int:
+    try:
+        bucket = get_storage_bucket()
+
+        blob = bucket.blob(file.name)
+        blob_content = blob.download_as_bytes()
+
+        reader = PdfReader(BytesIO(blob_content))
+        return len(reader.pages)
+    except Exception as e:
+        logger.error(str(e))
+        return 0
 
 
-def prepare_files_with_user_id(files: Files, request: Request) -> list:
-    """Helper function to add user ID to files and prepare them for insertion."""
-    files_with_user_id = []
-    for file in files.files:
-        file.uploaded_by = request.state.user.id
-        files_with_user_id.append(File(**file.model_dump()))
-    return files_with_user_id
+@router.post("/upload-pdf", response_description="Upload file")
+async def upload_pdf_file(file: CreateFile, request: Request):
 
+    file = File(**file.model_dump())
 
-@router.post("/upload", response_description="Upload files")
-async def upload_file(files: Files, request: Request):
-    files_with_user_id = prepare_files_with_user_id(files, request)
+    if file.type != "application/pdf":
+        raise HTTPException(status_code=400, detail="only supports PDF uploads")
 
-    result = await File.insert_many(files_with_user_id)
+    file.uploaded_by = request.state.user.id
+    file.is_indexed = False
 
-    str_inserted_ids = [str(inserted_id) for inserted_id in result.inserted_ids]
+    file.num_pages = _get_num_pages_from_pdf(file)
 
-    return {
-        "acknowledge": result.acknowledged,
-        "inserted_ids": str_inserted_ids,
-    }
+    result = await File.insert_one(file)
+
+    return result
 
 
 @router.get("/embed/{file_id}")

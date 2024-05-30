@@ -1,6 +1,8 @@
 """Module for initializing the FastAPI application and including routers."""
 
+import os
 import uuid
+
 
 from config import ENV_VARS
 from database import init_db
@@ -18,9 +20,15 @@ from starlette.middleware.sessions import SessionMiddleware
 
 load_dotenv()
 
+base_dir = os.path.dirname(os.path.abspath(__file__))
+
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.path.join(
+    base_dir, ENV_VARS.google_service_account
+)
+
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(fastapi_app: FastAPI):
     """
     Initialize the database and manage the lifespan of the app context.
     """

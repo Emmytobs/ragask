@@ -9,10 +9,8 @@ export const useFileUpload = () => {
   const [filesState, setFilesState] = useState<ICreateFile[]>([]);
   const { axios } = useAxios()
 
-  const uploadFiles = async (files: ICreateFile[]) => {
-    if (files.length > 0) {
-      await axios?.post('/files/upload', { files: [...files] });
-    }
+  const postFileToApi = async (file: ICreateFile) => {
+      await axios?.post('/files/upload-pdf', {...file});
   };
 
 
@@ -27,17 +25,17 @@ export const useFileUpload = () => {
           const { storage_url } = result;
           const { name, type, size } = file;
 
-          return {
+          const fileMetaData =  {
             name,
-            storage_url,
             storage_id: firebaseConfig.storageBucket!,
             type,
             size
           };
+          await postFileToApi(fileMetaData)
+          return {...fileMetaData, storage_url}
         }
       )
     );
-    await uploadFiles(filesWithStorageInfo)
     setFilesState(filesWithStorageInfo);
     return { files: filesWithStorageInfo };
   };
