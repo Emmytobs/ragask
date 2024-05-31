@@ -37,7 +37,7 @@ class DocumentVectors(Document):
         name = "document_vectors"
 
     @classmethod
-    async def get_related_chunks(cls, query: str):
+    async def get_related_chunks(cls, query: str, document_id: str):
 
         query_embeddings = EMBEDDINGS_MODEL.embed_query(query)
 
@@ -50,6 +50,7 @@ class DocumentVectors(Document):
                         "queryVector": query_embeddings,
                         "numCandidates": 50,
                         "limit": 50,
+                        "filter": {"document_id": ObjectId(document_id)},
                     }
                 },
                 {

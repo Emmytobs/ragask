@@ -3,8 +3,10 @@
 from io import BytesIO
 from beanie import PydanticObjectId
 from fastapi import APIRouter, HTTPException, Request, status
+from langchain_openai import ChatOpenAI
 
 from app_logging import logger
+from config import ENV_VARS
 from embeddings import EMBEDDINGS_MODEL
 from models.document_vectors import DocumentVectors
 from models.documents import CreateDocument, Document
@@ -12,6 +14,7 @@ from cloud import get_storage_bucket
 
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain.schema.messages import HumanMessage, SystemMessage
 
 
 from pypdf import PdfReader
@@ -131,6 +134,27 @@ async def extract_embeddings(
 
 
 @router.get("/related/{document_id}")
-async def get_related_docs(query: str):
-    docs = await DocumentVectors.get_related_chunks(query)
+async def get_related_docs(query: str, document_id: str):
+    docs = await DocumentVectors.get_related_chunks(query, document_id)
     return {"docs": docs}
+
+
+@router.get("/chat/{document_id}")
+async def chat_with_document(document_id: str, query: str):
+
+    docs = await DocumentVectors.get_related_chunks(query, document_id)
+
+    context = "\n\n".join([doc["page_content"] for doc in docs])
+
+    chat = ChatOpenAI(model="gpt-3.5-turbo-0125", api_key=ENV_VARS.openai_api_key)
+
+    messages = [
+        SystemMessage(
+            content=f"You're a helpful assistant. Given the content of this document answer the human question: Context: {context} "
+        ),
+        HumanMessage(content=query),
+    ]
+
+    response = chat.invoke(messages)
+
+    return {"response": response.content, "docs": docs}
