@@ -5,24 +5,19 @@ from beanie import PydanticObjectId
 from fastapi import APIRouter, HTTPException, Request, status
 
 from app_logging import logger
-from config import ENV_VARS
+from embeddings import EMBEDDINGS_MODEL
 from models.document_vectors import DocumentVectors
 from models.documents import CreateDocument, Document
 from cloud import get_storage_bucket
 
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_openai import OpenAIEmbeddings
 
 
 from pypdf import PdfReader
 
 
 router = APIRouter()
-
-EMBEDDINGS_MODEL = OpenAIEmbeddings(
-    api_key=ENV_VARS.openai_api_key, disallowed_special=()
-)
 
 
 def _get_num_pages_from_pdf(document: Document) -> int:
@@ -82,7 +77,7 @@ async def _process_document(document: Document):
     document_vectors = [
         DocumentVectors(
             document_id=document.id,
-            embedding=embeddings[i],
+            embeddings=embeddings[i],
             page_content=docs[i].page_content,
             metadata={
                 "page": docs[i].metadata["page"],
@@ -133,3 +128,9 @@ async def extract_embeddings(
         "acknowledged": result.acknowledged,
         "inserted_count": len(result.inserted_ids),
     }
+
+
+@router.get("/related/{document_id}")
+async def get_related_docs(query: str):
+    docs = await DocumentVectors.get_related_chunks(query)
+    return {"docs": docs}

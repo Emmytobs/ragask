@@ -6,11 +6,13 @@ from config import ENV_VARS
 from beanie import init_beanie
 from motor.motor_asyncio import AsyncIOMotorClient
 
+client = AsyncIOMotorClient(ENV_VARS.mongodb_uri)
+db = client.ragask
+
 
 async def init_db():
-    client = AsyncIOMotorClient(ENV_VARS.mongodb_uri)
     await init_beanie(
-        database=client.ragask,
+        database=db,
         document_models=[
             documents.Document,
             users.User,
