@@ -13,3 +13,6 @@ class DocumentVectors(Document):
     embedding: List[float]
     page_content: str
     metadata: DocumentMetadata
+
+    class Settings:
+        name = "document_vectors"

@@ -6,11 +6,11 @@ from fastapi import APIRouter, HTTPException, Request
 
 from app_logging import logger
 from config import ENV_VARS
+from models.document_vectors import DocumentVectors
 from models.documents import CreateDocument, Document
 from cloud import get_storage_bucket
 
 from langchain_community.document_loaders import PyPDFLoader
-from langchain_community.vectorstores import MongoDBAtlasVectorSearch
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_openai import OpenAIEmbeddings
 
@@ -19,6 +19,10 @@ from pypdf import PdfReader
 
 
 router = APIRouter()
+
+EMBEDDINGS_MODEL = OpenAIEmbeddings(
+    api_key=ENV_VARS.openai_api_key, disallowed_special=()
+)
 
 
 def _get_num_pages_from_pdf(document: Document) -> int:
@@ -53,33 +57,72 @@ async def upload_pdf_document(document: CreateDocument, request: Request):
     return result
 
 
+def _get_pdf_url(document: Document):
+    bucket = get_storage_bucket()
+    blob = bucket.blob(document.name)
+    # TODO: make this safe. Unable to use the signed url because PyPDFLoader says the url is too long
+    blob.make_public()
+    return blob.public_url
+
+
+async def _get_pdf_content(url: str):
+    loader = PyPDFLoader(url)
+    data = await loader.aload()
+
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=150)
+
+    docs = text_splitter.split_documents(data)
+    return docs
+
+
+async def _process_document(document: Document):
+    url = _get_pdf_url(document)
+    docs = await _get_pdf_content(url)
+    embeddings = EMBEDDINGS_MODEL.embed_documents([doc.page_content for doc in docs])
+    document_vectors = [
+        DocumentVectors(
+            document_id=document.id,
+            embedding=embeddings[i],
+            page_content=docs[i].page_content,
+            metadata={
+                "page": docs[i].metadata["page"],
+                "source": docs[i].metadata["source"],
+            },
+        )
+        for i in range(len(docs))
+    ]
+    return document_vectors
+
+
+async def _mark_document_as_indexed(document_id: str):
+    await Document.find_one(Document.id == document_id).update(
+        {"$set": {Document.is_indexed: True}}
+    )
+
+
 @router.get("/index/{document_id}")
-async def extract_embeddings(document_id: str):
+async def extract_embeddings(
+    document_id: str,
+):
     document = await Document.find_one({"_id": PydanticObjectId(document_id)})
 
-    if document and document.type == "application/pdf":
-        bucket = get_storage_bucket()
-        blob = bucket.blob(document.name)
-        blob.make_public()
+    if not document:
+        raise HTTPException(status_code=404, detail="Pdf Document not found")
 
-        # TODO: make this safe. unable to use the signed url because PyPDFLoader says the url is too long
-        url = blob.public_url
+    if document.is_indexed:
+        raise HTTPException(status_code=409, detail="Pdf Document is already indexed")
 
-        loader = PyPDFLoader(url)
-        data = await loader.aload()
+    if not document.type == "application/pdf":
+        raise HTTPException(status_code=400, detail="Document is not a PDF")
 
-        text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=1000, chunk_overlap=150
-        )
+    document_vectors = await _process_document(document)
 
-        docs = text_splitter.split_documents(data)
+    result = await DocumentVectors.insert_many(document_vectors)
 
-        MongoDBAtlasVectorSearch.from_documents(
-            documents=docs,
-            embedding=OpenAIEmbeddings(
-                api_key=ENV_VARS.openai_api_key, disallowed_special=()
-            ),
-            collection="document_vectors",
-            index_name="document_vectors",
-        )
-        return docs
+    if result.acknowledged:
+        await _mark_document_as_indexed(document.id)
+
+    return {
+        "acknowledged": result.acknowledged,
+        "inserted_count": len(result.inserted_ids),
+    }
