@@ -10,7 +10,7 @@ export const useFileUpload = () => {
   const { axios } = useAxios()
 
   const postFileToApi = async (file: ICreateFileApi) => {
-      await axios?.post('/files/upload-pdf', {...file});
+      await axios?.post('/documents/pdf/upload', {...file});
   };
 
 

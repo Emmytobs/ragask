@@ -2,12 +2,12 @@
 
 from datetime import datetime
 from pydantic import BaseModel
-from beanie import Document, PydanticObjectId
+from beanie import Document as BeanieDocument, PydanticObjectId
 
 
-class File(Document):
+class Document(BeanieDocument):
     """
-    Represents a file
+    Represents a document
     """
 
     name: str
@@ -21,11 +21,11 @@ class File(Document):
     size: int
 
     class Settings:
-        name = "files"
+        name = "documents"
         validate_on_save = True
 
 
-class CreateFile(BaseModel):
+class CreateDocument(BaseModel):
     name: str
     is_indexed: bool = False
     storage_id: str

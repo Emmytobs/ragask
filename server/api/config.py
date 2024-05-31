@@ -19,5 +19,7 @@ class Settings(BaseSettings):
     google_bucket_name: str
     google_service_account: str
 
+    openai_api_key: str
+
 
 ENV_VARS = Settings()
