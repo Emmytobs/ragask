@@ -6,4 +6,4 @@ from routes.documents import pdfs
 
 router = APIRouter()
 
-router.include_router(pdfs.router, prefix="/pdf", tags=["pdf"])
+router.include_router(pdfs.router, prefix="/pdf", tags=["Pdf"])
