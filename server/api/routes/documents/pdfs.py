@@ -2,7 +2,7 @@
 
 from io import BytesIO
 from beanie import PydanticObjectId
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request, status
 
 from app_logging import logger
 from config import ENV_VARS
@@ -107,13 +107,20 @@ async def extract_embeddings(
     document = await Document.find_one({"_id": PydanticObjectId(document_id)})
 
     if not document:
-        raise HTTPException(status_code=404, detail="Pdf Document not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Pdf Document not found"
+        )
 
     if document.is_indexed:
-        raise HTTPException(status_code=409, detail="Pdf Document is already indexed")
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Pdf Document is already indexed",
+        )
 
     if not document.type == "application/pdf":
-        raise HTTPException(status_code=400, detail="Document is not a PDF")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Document is not a PDF"
+        )
 
     document_vectors = await _process_document(document)
 
