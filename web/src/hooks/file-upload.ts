@@ -1,21 +1,21 @@
 import { firebaseConfig } from "@/app/firebase";
-import { ICreateFile } from "@/interfaces/IFile";
+import { IFile, ICreateFileApi } from "@/interfaces/IFile";
 import { uploadToCloudStorage } from "@/lib/storage-utils";
 import useAxios from "@/hooks/useAxios";
 import { useState } from "react";
 
 
 export const useFileUpload = () => {
-  const [filesState, setFilesState] = useState<ICreateFile[]>([]);
+  const [filesState, setFilesState] = useState<IFile[]>([]);
   const { axios } = useAxios()
 
-  const postFileToApi = async (file: ICreateFile) => {
+  const postFileToApi = async (file: ICreateFileApi) => {
       await axios?.post('/files/upload-pdf', {...file});
   };
 
 
   const onFileUploaded = async (files: File[]) => {
-    const filesWithStorageInfo: ICreateFile[] = await Promise.all(
+    const filesWithStorageInfo: IFile[] = await Promise.all(
       files.map(
         async (file) => {
           const result = await uploadToCloudStorage(file);
