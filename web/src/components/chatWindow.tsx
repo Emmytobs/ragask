@@ -1,13 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
 import ChatMessage, { Role } from "./ChatMessage";
 import { Textarea } from "./MyTextArea";
+import { IFile } from "@/interfaces/IFile";
 
 type ChatMessageData = {
   role: Role;
   message: string;
 };
 
-const ChatWindow = () => {
+const ChatWindow = ({currentFile}: {currentFile: IFile}) => {
   const chatMessagesRef = useRef<HTMLDivElement>(null);
 
   const initialMessages: ChatMessageData[] = new Array(15)
@@ -36,6 +37,10 @@ const ChatWindow = () => {
         message,
         role: "user",
       },
+      {
+        message: 'hello',
+        role: 'ai'
+      }
     ]);
   };
 

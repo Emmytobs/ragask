@@ -2,7 +2,7 @@
 
 from io import BytesIO
 from beanie import PydanticObjectId
-from fastapi import APIRouter, HTTPException, Request, status
+from fastapi import APIRouter, BackgroundTasks, HTTPException, Request, status
 from langchain_openai import ChatOpenAI
 
 from app_logging import logger
@@ -10,6 +10,7 @@ from config import ENV_VARS
 from embeddings import EMBEDDINGS_MODEL
 from models.document_vectors import DocumentVectors
 from models.documents import CreateDocument, Document
+from models.users import User
 from cloud import get_storage_bucket
 
 from langchain_community.document_loaders import PyPDFLoader
@@ -37,24 +38,6 @@ def _get_num_pages_from_pdf(document: Document) -> int:
         return 0
 
 
-@router.post("/upload", response_description="Upload file")
-async def upload_pdf_document(document: CreateDocument, request: Request):
-
-    document = Document(**document.model_dump())
-
-    if document.type != "application/pdf":
-        raise HTTPException(status_code=400, detail="only supports PDF uploads")
-
-    document.uploaded_by = request.state.user.id
-    document.is_indexed = False
-
-    document.num_pages = _get_num_pages_from_pdf(document)
-
-    result = await Document.insert_one(document)
-
-    return result
-
-
 def _get_pdf_url(document: Document):
     bucket = get_storage_bucket()
     blob = bucket.blob(document.name)
@@ -73,7 +56,7 @@ async def _get_pdf_content(url: str):
     return docs
 
 
-async def _process_document(document: Document):
+async def _process_text_to_embeddings(document: Document):
     url = _get_pdf_url(document)
     docs = await _get_pdf_content(url)
     embeddings = EMBEDDINGS_MODEL.embed_documents([doc.page_content for doc in docs])
@@ -98,11 +81,10 @@ async def _mark_document_as_indexed(document_id: str):
     )
 
 
-@router.get("/index/{document_id}")
-async def extract_embeddings(
-    document_id: str,
+async def _extract_embeddings(
+    document_id: PydanticObjectId,
 ):
-    document = await Document.find_one({"_id": PydanticObjectId(document_id)})
+    document = await Document.find_one({"_id": document_id})
 
     if not document:
         raise HTTPException(
@@ -120,7 +102,7 @@ async def extract_embeddings(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Document is not a PDF"
         )
 
-    document_vectors = await _process_document(document)
+    document_vectors = await _process_text_to_embeddings(document)
 
     result = await DocumentVectors.insert_many(document_vectors)
 
@@ -133,10 +115,33 @@ async def extract_embeddings(
     }
 
 
-@router.get("/related/{document_id}")
-async def get_related_docs(query: str, document_id: str):
-    docs = await DocumentVectors.get_related_chunks(query, document_id)
-    return {"docs": docs}
+async def _upload_pdf_document(document: CreateDocument, user: User):
+
+    document = Document(**document.model_dump())
+
+    if document.type != "application/pdf":
+        raise HTTPException(status_code=400, detail="only supports PDF uploads")
+
+    document.uploaded_by = user.id
+    document.is_indexed = False
+
+    document.num_pages = _get_num_pages_from_pdf(document)
+
+    result = await Document.insert_one(document)
+
+    return result
+
+
+@router.post("/upload", response_description="Upload file")
+async def process_pdf_document(
+    document: CreateDocument, request: Request, background_tasks: BackgroundTasks
+):
+    logger.info("Uploading document")
+    uploaded_document = await _upload_pdf_document(document, request.state.user)
+
+    logger.info("Extracting embeddings")
+    background_tasks.add_task(_extract_embeddings, uploaded_document.id)
+    return {"message": "success", "document_id": str(uploaded_document.id)}
 
 
 @router.get("/chat/{document_id}")

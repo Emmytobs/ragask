@@ -6,6 +6,7 @@ export type ICreateFileApi = {
 };
 
 export type IFile = {
+    id: string;
     name: string;
     storage_url: string
     storage_id: string;

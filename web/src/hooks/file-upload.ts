@@ -10,9 +10,15 @@ export const useFileUpload = () => {
   const { axios } = useAxios()
 
   const postFileToApi = async (file: ICreateFileApi) => {
-      await axios?.post('/documents/pdf/upload', {...file});
+      const response = await axios?.post('/documents/pdf/upload', {...file});
+      return response?.data.document_id;
   };
 
+
+  const onRemoveFileFromViewTab = (file: IFile) => {
+    const updatedPdfFiles = filesState.filter(f => f.name !== file.name);
+    setFilesState(updatedPdfFiles);
+  };
 
   const onFileUploaded = async (files: File[]) => {
     const filesWithStorageInfo: IFile[] = await Promise.all(
@@ -31,8 +37,8 @@ export const useFileUpload = () => {
             type,
             size
           };
-          await postFileToApi(fileMetaData)
-          return {...fileMetaData, storage_url}
+          const documentId = await postFileToApi(fileMetaData);
+          return {...fileMetaData, storage_url, id: documentId}  
         }
       )
     );
@@ -40,5 +46,5 @@ export const useFileUpload = () => {
     return { files: filesWithStorageInfo };
   };
 
-  return { files: filesState, onFileUploaded };
+  return { files: filesState, onFileUploaded, onRemoveFileFromViewTab};
 };
