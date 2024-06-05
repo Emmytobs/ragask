@@ -76,9 +76,10 @@ async def _process_text_to_embeddings(document: Document):
 
 
 async def _mark_document_as_indexed(document_id: str):
-    await Document.find_one(Document.id == document_id).update(
+    result = await Document.find_one(Document.id == document_id).update(
         {"$set": {Document.is_indexed: True}}
     )
+    logger.info("Result from marking document as indexed: %s", result)
 
 
 async def _extract_embeddings(
@@ -144,8 +145,27 @@ async def process_pdf_document(
     return {"message": "success", "document_id": str(uploaded_document.id)}
 
 
+async def _user_has_access_to_document(document_id: str, user_id: str):
+    document = await Document.find_one(
+        {"uploaded_by": PydanticObjectId(user_id), "_id": PydanticObjectId(document_id)}
+    )
+    if not document:
+        return False
+
+    return True
+
+
 @router.get("/chat/{document_id}")
-async def chat_with_document(document_id: str, query: str):
+async def chat_with_document(document_id: str, query: str, request: Request):
+    logger.info("Chatting with document")
+    user_has_access = await _user_has_access_to_document(
+        document_id, request.state.user.id
+    )
+    if not user_has_access:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User does not have access to this document",
+        )
 
     docs = await DocumentVectors.get_related_chunks(query, document_id)
 
@@ -159,7 +179,7 @@ async def chat_with_document(document_id: str, query: str):
         ),
         HumanMessage(content=query),
     ]
-
     response = chat.invoke(messages)
+    logger.info("Llm response: %s", response.content)
 
     return {"response": response.content, "docs": docs}

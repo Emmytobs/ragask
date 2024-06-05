@@ -9,7 +9,7 @@ const useAxios = () => {
 
         const axios = axiosDefault.create({
             baseURL: `${host}/api/v1`,
-            timeout: 5000,
+            timeout: 20000,
             headers: {
                 'Authorization': `Bearer ${session?.jwt}`
             }

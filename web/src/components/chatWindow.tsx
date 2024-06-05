@@ -2,24 +2,18 @@ import React, { useEffect, useRef, useState } from "react";
 import ChatMessage, { Role } from "./ChatMessage";
 import { Textarea } from "./MyTextArea";
 import { IFile } from "@/interfaces/IFile";
+import useAxios from "@/hooks/useAxios";
 
 type ChatMessageData = {
   role: Role;
   message: string;
 };
 
-const ChatWindow = ({currentFile}: {currentFile: IFile}) => {
+const ChatWindow = ({ currentFile }: { currentFile: IFile }) => {
   const chatMessagesRef = useRef<HTMLDivElement>(null);
+  const { axios } = useAxios();
 
-  const initialMessages: ChatMessageData[] = new Array(15)
-    .fill(null)
-    .map((_, index) => {
-      return {
-        role: index % 2 == 0 ? "user" : "ai",
-        message:
-          "Porem ipsum dolor sit amet, consectetur adipiscing elit. Nunc vulputate libero et velit interdum, ac aliquet odio mattis. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.",
-      };
-    });
+  const initialMessages: ChatMessageData[] = [];
 
   const [chatMessageData, setChatMessageData] =
     useState<ChatMessageData[]>(initialMessages);
@@ -30,7 +24,13 @@ const ChatWindow = ({currentFile}: {currentFile: IFile}) => {
 
   const chatIsEmpty = chatMessageData.length == 0;
 
-  const onAddMessage = (message: string) => {
+  const onAddMessage = async (message: string) => {
+    const llmResponse = await axios?.get(
+      `/documents/pdf/chat/${currentFile.id}?query=${message}`
+    );
+    if (!llmResponse) {
+      return;
+    }
     setChatMessageData((prevMessages) => [
       ...prevMessages,
       {
@@ -38,9 +38,9 @@ const ChatWindow = ({currentFile}: {currentFile: IFile}) => {
         role: "user",
       },
       {
-        message: 'hello',
-        role: 'ai'
-      }
+        message: llmResponse.data.response,
+        role: "ai",
+      },
     ]);
   };
 
@@ -67,7 +67,9 @@ const ChatWindow = ({currentFile}: {currentFile: IFile}) => {
         {chatMessageData.map(({ role, message }, index) => (
           <ChatMessage key={index} role={role} message={message} />
         ))}
-        {chatIsEmpty ? <div>Start by sending a message!</div> : null}
+        {chatIsEmpty ? (
+          <div className="text-center">Start by sending a message!</div>
+        ) : null}
       </div>
       <div className="flex-[0_0_60px] bg-white py-4">
         <Textarea onAddMessage={onAddMessage} />
