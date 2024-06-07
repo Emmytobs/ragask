@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import ChatMessage, { Role } from "./ChatMessage";
 import { Textarea } from "./MyTextArea";
 import { IFile } from "@/interfaces/IFile";
-import useAxios from "@/hooks/useAxios";
+import useAxios from "@/hooks/use-axios";
 
 type ChatMessageData = {
   role: Role;

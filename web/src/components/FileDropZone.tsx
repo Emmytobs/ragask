@@ -18,7 +18,7 @@ function FileDropzone({
       <input {...getInputProps()} />
       <div className="h-full flex justify-center items-center">
         {isDragActive ? (
-          <p>Drop the files here ...</p>
+          <p>Drop the files here...</p>
         ) : (
           <div className="flex flex-col items-center gap-y-2 cursor-pointer">
             <Upload size="30px" />

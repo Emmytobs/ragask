@@ -1,4 +1,3 @@
-"use client"
 import { firebaseConfig } from "@/app/firebase";
 import { IFile, ICreateFileApi } from "@/interfaces/IFile";
 import { uploadToCloudStorage } from "@/lib/storage-utils";
@@ -53,11 +52,15 @@ export const useFileUpload = () => {
           type,
           size,
         };
-        let data = {document_id: ""};
-        if(session) {
-          data = await trigger({...fileMetaData, jwt: session.jwt });
+        const jwt = session?.jwt;
+        if(jwt){
+          const data = await trigger({...fileMetaData, jwt});
+          return { ...fileMetaData, storage_url, id: data.document_id };
         }
-        return { ...fileMetaData, storage_url, id: data.document_id };
+        else{
+          console.log("No jwt found");
+        }
+        return { ...fileMetaData, storage_url, id: null };
       })
     );
     setFilesState(filesWithStorageInfo);
