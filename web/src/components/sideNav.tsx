@@ -7,19 +7,14 @@ import {
   WandSparkles,
   LogIn,
 } from "lucide-react";
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Logo } from "./Logo";
 import { signIn, useSession } from "next-auth/react";
 import { getInitials } from "@/lib/get-user-intials";
-import { ExtendedSession } from "@/session";
 import { MyToolTip } from "./MyToolTip";
 
 function SideNav() {
-  const { data: session } = useSession() as { data: ExtendedSession }
+  const { data: session } = useSession();
 
   return (
     <div className="h-screen w-16 flex flex-col items-center text-white space-y-32 border">
@@ -45,17 +40,29 @@ function SideNav() {
             <WandSparkles color="black" />
           </div>
           <div className="my-4" style={{ cursor: "pointer" }}>
-            <MyToolTip text="View Profile" content={
-              <Avatar>
-                <AvatarImage src={session?.user_info?.avatar ?? ""} alt="@shadcn" />
-                <AvatarFallback>{getInitials(session?.user?.name ?? "")}</AvatarFallback>
-              </Avatar>
-            } />
+            <MyToolTip
+              text="View Profile"
+              content={
+                <Avatar>
+                  {!session ? (
+                    <AvatarFallback>{getInitials("")}</AvatarFallback>
+                  ) : (
+                    <>
+                      <AvatarImage src={session.user.avatar} alt="User avatar" />
+                      <AvatarFallback>
+                        {getInitials(session.user.name ?? "")}
+                      </AvatarFallback>
+                    </>
+                  )}
+                </Avatar>
+              }
+            />
           </div>
           <div className="mt-4 ml-1" style={{ cursor: "pointer" }}>
-            <MyToolTip text="Log in" content={
-              <LogIn color="black" onClick={() => signIn("google")} />
-            } />
+            <MyToolTip
+              text="Log in"
+              content={<LogIn color="black" onClick={() => signIn("google")} />}
+            />
           </div>
         </div>
       </div>

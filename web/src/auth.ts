@@ -1,9 +1,9 @@
 import NextAuth, { Session } from "next-auth"
 import Google from "next-auth/providers/google"
-import { ExtendedSession, IUser } from "./session";
+import {  IUser } from "@/session";
 import axios from "axios";
 
-let cachedSession: ExtendedSession | null = null;
+let cachedSession: Session | null = null;
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [Google],
@@ -20,15 +20,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         return cachedSession;
       }
     
-      const customSession = session as ExtendedSession;
+      const customSession = session;
       customSession.jwt = token.jwt as string;
       const host = process.env.NEXT_PUBLIC_BASE_URL;
       const userInDb: IUser = (await axios.get(`${host}/api/v1/users/${customSession.user?.email}`, {
         headers: {
-          'Authorization': `Bearer ${customSession?.jwt}`
+          'Authorization': `Bearer ${customSession.jwt}`
         }
       })).data;
-      customSession.user_info = userInDb;
+      customSession.user = { ...userInDb, ...customSession.user };
     
       cachedSession = customSession;
       return customSession;

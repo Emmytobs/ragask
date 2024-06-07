@@ -16,7 +16,7 @@ export default function Home() {
   useEffect(() => {
     setCurrentFile(files[0]);
   }, [files]);
-  
+
   return (
     <>
       <div className="fixed left-0">
