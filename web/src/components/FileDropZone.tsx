@@ -14,7 +14,7 @@ function FileDropzone({
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
   return (
-    <div {...getRootProps()} className="h-full">
+    <div {...getRootProps()}>
       <input {...getInputProps()} />
       <div className="h-full flex justify-center items-center">
         {isDragActive ? (

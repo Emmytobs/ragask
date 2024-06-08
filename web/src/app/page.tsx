@@ -33,7 +33,9 @@ export default function Home() {
               setCurrentFile={setCurrentFile}
             />
           ) : (
+          <div className="flex flex-col items-center justify-center h-screen">
             <FileDropzone onFileUploaded={onFileUploaded} />
+          </div>
           )}
         </div>
         <div className="flex-1 h-screen">
