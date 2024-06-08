@@ -7,8 +7,9 @@ import {
   WandSparkles,
 } from "lucide-react";
 import { Logo } from "./Logo";
-import {  useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { UserDropDown } from "./user-drop-down";
+import Link from "next/link";
 
 function SideNav() {
   const { data: session } = useSession();
@@ -25,8 +26,10 @@ function SideNav() {
         <div className="my-4">
           <CloudUpload color="black" />
         </div>
-        <div className="my-4">
-          <FileText color="black" />
+        <div className="my-4" style={{ cursor: "pointer" }}>
+          <Link href="/file-uploads">
+            <FileText color="black" />
+          </Link>
         </div>
       </div>
 
@@ -37,7 +40,7 @@ function SideNav() {
             <WandSparkles color="black" />
           </div>
           <div className="my-4" style={{ cursor: "pointer" }}>
-          <UserDropDown/>
+            <UserDropDown />
           </div>
         </div>
       </div>
