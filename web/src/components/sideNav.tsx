@@ -5,13 +5,10 @@ import {
   CloudUpload,
   FileText,
   WandSparkles,
-  LogIn,
 } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Logo } from "./Logo";
-import { signIn, useSession } from "next-auth/react";
-import { getInitials } from "@/lib/get-user-intials";
-import { MyToolTip } from "./MyToolTip";
+import {  useSession } from "next-auth/react";
+import { UserDropDown } from "./user-drop-down";
 
 function SideNav() {
   const { data: session } = useSession();
@@ -40,29 +37,7 @@ function SideNav() {
             <WandSparkles color="black" />
           </div>
           <div className="my-4" style={{ cursor: "pointer" }}>
-            <MyToolTip
-              text="View Profile"
-              content={
-                <Avatar>
-                  {!session ? (
-                    <AvatarFallback>{getInitials("")}</AvatarFallback>
-                  ) : (
-                    <>
-                      <AvatarImage src={session.user.avatar} alt="User avatar" />
-                      <AvatarFallback>
-                        {getInitials(session.user.name ?? "")}
-                      </AvatarFallback>
-                    </>
-                  )}
-                </Avatar>
-              }
-            />
-          </div>
-          <div className="mt-4 ml-1" style={{ cursor: "pointer" }}>
-            <MyToolTip
-              text="Log in"
-              content={<LogIn color="black" onClick={() => signIn("google")} />}
-            />
+          <UserDropDown/>
           </div>
         </div>
       </div>

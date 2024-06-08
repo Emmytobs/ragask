@@ -48,7 +48,7 @@ export const useFileUpload = () => {
   const onFileUploaded = async (files: File[]) => {
     if (!session?.jwt) {
       setPendingFiles(files); 
-      return; 
+      return { files: [] };
     }
 
     const filesWithStorageInfo: IFile[] = await Promise.all(

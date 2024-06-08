@@ -75,7 +75,7 @@ const ChatWindow = ({ currentFile }: { currentFile: IFile }) => {
     scrollToBottomOfChatWindow();
   }, [chatMessageData.length, aiStreamingMessage]);
 
-  const chatIsEmpty = chatMessageData.length == 0;
+  const chatIsEmpty = chatMessageData.filter(({ message }) => message !== "").length == 0;
 
   const onAddMessage = async (message: string) => {
     setUserMessage(message);
