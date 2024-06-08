@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from "react";
 import ChatMessage, { Role } from "./ChatMessage";
 import { Textarea } from "./MyTextArea";
 import { IFile } from "@/interfaces/IFile";
-import useAxios from "@/hooks/use-axios";
 import { EventSourcePolyfill } from "event-source-polyfill";
 import { useSession } from "next-auth/react";
 
@@ -16,7 +15,7 @@ const ChatWindow = ({ currentFile }: { currentFile: IFile }) => {
   const { data: session } = useSession();
   const [userMessage, setUserMessage] = useState("");
   const [aiStreamingMessage, setAiStreamingMessage] = useState("");
-
+  
   useEffect(() => {
     let mount = true;
     let events: EventSourcePolyfill;
@@ -47,7 +46,6 @@ const ChatWindow = ({ currentFile }: { currentFile: IFile }) => {
       if (events) {
         events.close();
       }
-      setUserMessage("");
       setAiStreamingMessage("");
     };
   }, [userMessage]);
