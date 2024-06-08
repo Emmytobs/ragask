@@ -118,7 +118,7 @@ const ChatWindow = ({ currentFile }: { currentFile: IFile }) => {
         ) : null}
       </div>
       <div className="flex-[0_0_60px] bg-white py-4">
-        <Textarea onAddMessage={onAddMessage} />
+        <Textarea onAddMessage={onAddMessage} disable={!currentFile}/>
       </div>
     </div>
   );
