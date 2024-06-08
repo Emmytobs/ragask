@@ -19,6 +19,8 @@ langchain-community = "^0.2.1"
 pypdf = "^4.2.0"
 google-cloud-storage = "^2.16.0"
 langchain-openai = "^0.1.8"
+sse-starlette = "^2.1.0"
+asyncio = "^3.4.3"
 
 
 [build-system]

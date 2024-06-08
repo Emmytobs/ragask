@@ -1,8 +1,10 @@
 """Module for handling PDF document operations."""
 
+import asyncio
 from io import BytesIO
 from beanie import PydanticObjectId
 from fastapi import APIRouter, BackgroundTasks, HTTPException, Request, status
+from starlette.responses import StreamingResponse
 from langchain_openai import ChatOpenAI
 
 from app_logging import logger
@@ -179,7 +181,15 @@ async def chat_with_document(document_id: str, query: str, request: Request):
         ),
         HumanMessage(content=query),
     ]
-    response = chat.invoke(messages)
-    logger.info("Llm response: %s", response.content)
 
-    return {"response": response.content, "docs": docs}
+    def generate_response():
+        try:
+            for chat_chunk in chat.stream(messages):
+                logger.info("Llm response: %s", chat_chunk.content)
+                yield f"data: {chat_chunk.content}\n\n"
+        except asyncio.CancelledError as e:
+            logger.error("Llm stream cancelled %s", request.client)
+            raise e
+
+    logger.info("Related documents: %s", docs)
+    return StreamingResponse(generate_response(), media_type="text/event-stream")

@@ -3,6 +3,8 @@ import ChatMessage, { Role } from "./ChatMessage";
 import { Textarea } from "./MyTextArea";
 import { IFile } from "@/interfaces/IFile";
 import useAxios from "@/hooks/use-axios";
+import { EventSourcePolyfill } from "event-source-polyfill";
+import { useSession } from "next-auth/react";
 
 type ChatMessageData = {
   role: Role;
@@ -11,7 +13,60 @@ type ChatMessageData = {
 
 const ChatWindow = ({ currentFile }: { currentFile: IFile }) => {
   const chatMessagesRef = useRef<HTMLDivElement>(null);
-  const { axios } = useAxios();
+  const { data: session } = useSession();
+  const [userMessage, setUserMessage] = useState("");
+  const [aiStreamingMessage, setAiStreamingMessage] = useState("");
+
+  useEffect(() => {
+    let mount = true;
+    let events: EventSourcePolyfill;
+    let createEvents = () => {
+      if (events) {
+        events.close();
+      }
+      if (currentFile) {
+        events = new EventSourcePolyfill(
+          `http://localhost:8000/api/v1/documents/pdf/chat/${currentFile.id}?query=${userMessage}`,
+          { headers: { Authorization: `Bearer ${session?.jwt}` } }
+        );
+        events.onmessage = (event) => {
+          if (mount) {
+            setAiStreamingMessage((prev) => prev + event.data);
+          }
+        };
+        events.onerror = (err) => {
+          events.close();
+        };
+      }
+    };
+
+    createEvents();
+
+    return () => {
+      mount = false;
+      if (events) {
+        events.close();
+      }
+      setUserMessage("");
+      setAiStreamingMessage("");
+    };
+  }, [userMessage]);
+
+  useEffect(() => {
+    setChatMessageData((prevMessages) => {
+      const lastMessage = prevMessages[prevMessages.length - 1];
+
+      const newMessage = {
+        message: aiStreamingMessage,
+        role: "ai",
+      } as ChatMessageData;
+
+      if (lastMessage && lastMessage.role === "ai") {
+        return [...prevMessages.slice(0, -1), newMessage];
+      }
+      return [...prevMessages, newMessage];
+    });
+  }, [aiStreamingMessage]);
 
   const initialMessages: ChatMessageData[] = [];
 
@@ -20,26 +75,17 @@ const ChatWindow = ({ currentFile }: { currentFile: IFile }) => {
 
   useEffect(() => {
     scrollToBottomOfChatWindow();
-  }, [chatMessageData.length]);
+  }, [chatMessageData.length, aiStreamingMessage]);
 
   const chatIsEmpty = chatMessageData.length == 0;
 
   const onAddMessage = async (message: string) => {
-    const llmResponse = await axios?.get(
-      `/documents/pdf/chat/${currentFile.id}?query=${message}`
-    );
-    if (!llmResponse) {
-      return;
-    }
+    setUserMessage(message);
     setChatMessageData((prevMessages) => [
       ...prevMessages,
       {
         message,
         role: "user",
-      },
-      {
-        message: llmResponse.data.response,
-        role: "ai",
       },
     ]);
   };
@@ -64,9 +110,11 @@ const ChatWindow = ({ currentFile }: { currentFile: IFile }) => {
         } overflow-auto py-4 gap-y-4`}
         ref={chatMessagesRef}
       >
-        {chatMessageData.map(({ role, message }, index) => (
-          <ChatMessage key={index} role={role} message={message} />
-        ))}
+        {chatMessageData
+          .filter(({ message }) => message !== "")
+          .map(({ role, message }, index) => (
+            <ChatMessage key={index} role={role} message={message} />
+          ))}
         {chatIsEmpty ? (
           <div className="text-center">Start by sending a message!</div>
         ) : null}
