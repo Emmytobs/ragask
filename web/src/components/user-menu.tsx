@@ -11,26 +11,25 @@ import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { getInitials } from "@/lib/get-user-intials";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
+import { redirect } from "next/navigation";
 
 export function UserDropDown() {
   const { data: session, status } = useSession();
-  const [isLoggedIn, setIsLoggedIn] = useState(status === "authenticated");
 
   const toggleLoggedIn = () => {
-    if (isLoggedIn) {
+    if (status === "authenticated") {
       signOut();
     } else {
       signIn("google");
     }
   };
   
-  useEffect(() => { 
-    if (status === "authenticated") {
-      setIsLoggedIn(true);
-    }else{
-      setIsLoggedIn(false);
-    }
-  }, [status])
+  useEffect(() => {
+  if (status === "unauthenticated") {
+  redirect("/login");
+  }
+  }, [status]);
+
 
   return (
     <DropdownMenu>
@@ -52,19 +51,13 @@ export function UserDropDown() {
         <DropdownMenuLabel>My Account</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem>
-            Profile
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            Billing
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            Settings
-          </DropdownMenuItem>
+          <DropdownMenuItem>Profile</DropdownMenuItem>
+          <DropdownMenuItem>Billing</DropdownMenuItem>
+          <DropdownMenuItem>Settings</DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => toggleLoggedIn()}>
-        {isLoggedIn ? "Log out" : "Log in"}
+          {status === "authenticated" ? "Log out" : "Log in"}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
