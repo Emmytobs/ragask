@@ -1,7 +1,7 @@
 import { firebaseConfig } from "@/app/firebase";
 import { IFile, ICreateFileApi } from "@/interfaces/IFile";
 import { uploadToCloudStorage } from "@/lib/storage-utils";
-import {  useState } from "react";
+import {  useEffect, useState } from "react";
 import useSWRMutation from "swr/mutation";
 import { useSession } from "next-auth/react";
 
@@ -22,14 +22,23 @@ async function uploadFileRequest(url: string, { arg }: { arg: IFileUploadMutatio
 }
 
 export const useFileUpload = () => {
-  const {data: session} = useSession()
+  const {data: session} = useSession();
   const [filesState, setFilesState] = useState<IFile[]>([]);
+  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
 
   const { trigger } = useSWRMutation(
     "http://localhost:8000/api/v1/documents/pdf/upload",
     uploadFileRequest
   );
-  
+
+
+  useEffect(() => {
+    if (session && pendingFiles.length > 0) {
+      onFileUploaded(pendingFiles).then(() => {
+        setPendingFiles([]); 
+      });
+    }
+  }, [session, pendingFiles]);
 
   const onRemoveFileFromViewTab = (file: IFile) => {
     const updatedPdfFiles = filesState.filter((f) => f.name !== file.name);
@@ -37,6 +46,11 @@ export const useFileUpload = () => {
   };
 
   const onFileUploaded = async (files: File[]) => {
+    if (!session?.jwt) {
+      setPendingFiles(files); 
+      return; 
+    }
+
     const filesWithStorageInfo: IFile[] = await Promise.all(
       files.map(async (file) => {
         const result = await uploadToCloudStorage(file);
@@ -52,15 +66,8 @@ export const useFileUpload = () => {
           type,
           size,
         };
-        const jwt = session?.jwt;
-        if(jwt){
-          const data = await trigger({...fileMetaData, jwt});
-          return { ...fileMetaData, storage_url, id: data.document_id };
-        }
-        else{
-          console.log("No jwt found");
-        }
-        return { ...fileMetaData, storage_url, id: null };
+        const data = await trigger({...fileMetaData, jwt: session.jwt});
+        return { ...fileMetaData, storage_url, id: data.document_id };
       })
     );
     setFilesState(filesWithStorageInfo);
