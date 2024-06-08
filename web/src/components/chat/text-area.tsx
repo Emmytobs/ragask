@@ -25,12 +25,18 @@ export const Textarea = (props: TextareaProps) => {
     setIsFocused(false);
   };
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleSubmit = () => {
     onAddMessage(inputValue);
     setInputValue("");
   };
 
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault(); // Prevent the default action to avoid a new line
+      handleSubmit(); // Trigger form submission
+    }
+  };
+  
   return (
     <form className="relative flex items-center" onSubmit={handleSubmit}>
       <TextareaAutosize
@@ -40,9 +46,10 @@ export const Textarea = (props: TextareaProps) => {
         onChange={handleInputChange}
         onFocus={handleInputFocus}
         onBlur={handleInputBlur}
+        onKeyDown={handleKeyDown} // Add the onKeyDown event handler
         value={inputValue}
       />
       <Button disabled={!inputValue} focus={isFocused} />
     </form>
   );
-};
+}
