@@ -3,7 +3,7 @@ import { Separator } from "./ui/separator";
 import { UserDropDown } from "./user-menu";
 import Link from "next/link";
 import { Icons } from "./icons";
-import { Logo } from "@/components/new";
+import { Logo } from "@/components/logo";
 
 function SideNav() {
   return (

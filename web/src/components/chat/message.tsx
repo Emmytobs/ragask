@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Logo } from "@/components/new";
+import { Logo } from "@/components/logo";
 
 const ROLE = ["user", "ai"] as const;
 export type Role = (typeof ROLE)[number];

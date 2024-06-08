@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { UserAuthForm } from "@/components/auth/user-auth-form";
-import { Logo } from "@/components/new";
+import { Logo } from "@/components/logo";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 
