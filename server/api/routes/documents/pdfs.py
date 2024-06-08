@@ -177,7 +177,9 @@ async def chat_with_document(document_id: str, query: str, request: Request):
 
     messages = [
         SystemMessage(
-            content=f"You're a helpful assistant. Given the content of this document answer the human question: Context: {context} "
+            content=f"You're a helpful assistant. \
+             Given the content of this document answer the human question.\
+            Make sure all your answers are in markdown: Context: {context}. Return only the markdown. For new lines add \n"
         ),
         HumanMessage(content=query),
     ]

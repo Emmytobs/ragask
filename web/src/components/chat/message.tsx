@@ -1,5 +1,6 @@
-import { useState } from "react";
 import { Logo } from "@/components/logo";
+import Markdown from "react-markdown";
+import remarkGfm from 'remark-gfm'
 
 const ROLE = ["user", "ai"] as const;
 export type Role = (typeof ROLE)[number];
@@ -16,7 +17,11 @@ function ChatMessage({ role, message }: { role: Role; message: string }) {
           <span role="img" aria-label="ai" style={{ fontSize: "24px" }}>
             <Logo />
           </span>
-          <span>{message}</span>
+          <span>
+            <Markdown remarkPlugins={[remarkGfm]}>{
+              message
+            }</Markdown>
+          </span>
         </div>
       )}
     </div>
