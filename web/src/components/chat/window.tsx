@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
-import ChatMessage, { Role } from "./ChatMessage";
-import { Textarea } from "./MyTextArea";
+import ChatMessage, { Role } from "./message";
+import { Textarea } from "./text-area";
 import { IFile } from "@/interfaces/IFile";
 import { EventSourcePolyfill } from "event-source-polyfill";
 import { useSession } from "next-auth/react";

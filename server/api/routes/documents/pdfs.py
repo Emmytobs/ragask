@@ -185,7 +185,6 @@ async def chat_with_document(document_id: str, query: str, request: Request):
     def generate_response():
         try:
             for chat_chunk in chat.stream(messages):
-                logger.info("Llm response: %s", chat_chunk.content)
                 yield f"data: {chat_chunk.content}\n\n"
         except asyncio.CancelledError as e:
             logger.error("Llm stream cancelled %s", request.client)

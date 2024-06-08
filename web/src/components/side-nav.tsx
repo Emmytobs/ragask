@@ -1,34 +1,26 @@
 import React from "react";
 import { Separator } from "./ui/separator";
-import {
-  MessageSquare,
-  CloudUpload,
-  FileText,
-  WandSparkles,
-} from "lucide-react";
-import { Logo } from "./Logo";
-import { useSession } from "next-auth/react";
-import { UserDropDown } from "./user-drop-down";
+import { UserDropDown } from "./user-menu";
 import Link from "next/link";
+import { Icons } from "./icons";
+import { Logo } from "@/components/new";
 
 function SideNav() {
-  const { data: session } = useSession();
-
   return (
-    <div className="h-screen w-16 flex flex-col items-center text-white space-y-32 border">
-      <div className="my-4">
-        <Logo />
+    <div className="h-screen w-16 flex flex-col items-center text-white space-y-32">
+      <div className="my-4 flex flex-col items-center justify-center">
+        <Logo width="36" height="36" className="mx-auto h-12 w-12" />
       </div>
       <div className="space-y-16">
         <div className="my-4">
-          <MessageSquare color="black" />
+          <Icons.chatHistory color="black" />
         </div>
         <div className="my-4">
-          <CloudUpload color="black" />
+          <Icons.fileHistory color="black" />
         </div>
         <div className="my-4" style={{ cursor: "pointer" }}>
           <Link href="/file-uploads">
-            <FileText color="black" />
+            <Icons.fileUpload color="black" />
           </Link>
         </div>
       </div>
@@ -37,7 +29,7 @@ function SideNav() {
         <Separator />
         <div className="space-y-16">
           <div className="my-4 ml-1">
-            <WandSparkles color="black" />
+            <Icons.subscriptionUpgrade color="black" />
           </div>
           <div className="my-4" style={{ cursor: "pointer" }}>
             <UserDropDown />

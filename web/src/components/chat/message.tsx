@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { Logo } from "./Logo";
-import { User } from "lucide-react";
+import { Logo } from "@/components/new";
 
 const ROLE = ["user", "ai"] as const;
 export type Role = (typeof ROLE)[number];

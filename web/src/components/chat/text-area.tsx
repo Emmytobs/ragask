@@ -1,5 +1,5 @@
 import { FormEvent, useState } from "react";
-import { Button } from "./MySendButton";
+import { Button } from "./button";
 
 type TextareaProps = {
   onAddMessage: (message: string) => void;

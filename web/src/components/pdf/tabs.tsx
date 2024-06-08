@@ -1,8 +1,8 @@
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import { ScrollArea, ScrollBar } from "./ui/scroll-area";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
+import { ScrollArea, ScrollBar } from "../ui/scroll-area";
 import { X } from "lucide-react";
-import { PDF } from "./pdf";
-import { FileDropzone } from "./FileDropZone";
+import { PDF } from "./viewer";
+import { FileDropzone } from "../file-drop-zone";
 import { IFile } from "@/interfaces/IFile";
 
 type PdfTabsProps = {
