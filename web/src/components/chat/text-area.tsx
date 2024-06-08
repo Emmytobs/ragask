@@ -32,8 +32,8 @@ export const Textarea = (props: TextareaProps) => {
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (event.key === 'Enter' && !event.shiftKey) {
-      event.preventDefault(); // Prevent the default action to avoid a new line
-      handleSubmit(); // Trigger form submission
+      event.preventDefault(); 
+      handleSubmit(); 
     }
   };
   
@@ -42,11 +42,11 @@ export const Textarea = (props: TextareaProps) => {
       <TextareaAutosize
         disabled={disable}
         placeholder="Ask your document"
-        className="flex-auto pl-4 pr-11 py-4 text-gray-700 bg-transparent border border-black rounded-full focus:outline-none focus:ring-1 focus:ring-black placeholder:italic resize-none"
+        className="flex-auto pl-4 pr-11 py-4 text-gray-700 bg-transparent border border-black rounded-lg focus:outline-none focus:ring-1 focus:ring-black placeholder:italic resize-none"
         onChange={handleInputChange}
         onFocus={handleInputFocus}
         onBlur={handleInputBlur}
-        onKeyDown={handleKeyDown} // Add the onKeyDown event handler
+        onKeyDown={handleKeyDown} 
         value={inputValue}
       />
       <Button disabled={!inputValue} focus={isFocused} />

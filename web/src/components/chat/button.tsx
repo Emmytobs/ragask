@@ -8,7 +8,9 @@ export function Button({
   return (
     <button
       type="submit"
-      className="absolute right-2 flex items-center justify-center w-10 h-10 text-gray-700 bg-transparent border-none rounded-full cursor-not-allowed"
+      className={`absolute right-2 flex items-center justify-center w-10 h-10 text-gray-700 bg-transparent border-none rounded-full ${
+        disabled ? "cursor-not-allowed" : ""
+      }`}
     >
       <svg
         width="28"
