@@ -32,14 +32,6 @@ export const Textarea = (props: TextareaProps) => {
 
   return (
     <form className="relative flex items-center" onSubmit={handleSubmit}>
-      {/* <input
-        placeholder="Ask your document"
-        className="flex-auto px-4 py-4 text-gray-700 bg-transparent border border-black rounded-full focus:outline-none focus:ring-1 focus:ring-black placeholder:italic"
-        onChange={handleInputChange}
-        onFocus={handleInputFocus}
-        onBlur={handleInputBlur}
-        value={inputValue}
-      /> */}
       <TextareaAutosize
         placeholder="Ask your document"
         className="flex-auto pl-4 pr-11 py-4 text-gray-700 bg-transparent border border-black rounded-full focus:outline-none focus:ring-1 focus:ring-black placeholder:italic resize-none"
