@@ -27,7 +27,7 @@ export const useFileUpload = () => {
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
 
   const { trigger } = useSWRMutation(
-    `http://${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/documents/pdf/upload`,
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/documents/pdf/upload`,
     uploadFileRequest
   );
 
