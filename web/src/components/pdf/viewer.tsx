@@ -8,6 +8,9 @@ import "@react-pdf-viewer/core/lib/styles/index.css";
 import "@react-pdf-viewer/toolbar/lib/styles/index.css";
 import { Worker } from "@react-pdf-viewer/core";
 
+import packageJson from '../../../package.json';
+const pdfjsVersion = packageJson.dependencies['pdfjs-dist'];
+
 type PDFProps = {
   fileUrl: string;
 };
@@ -17,9 +20,11 @@ const PDF = (props: PDFProps) => {
 
   const toolbarPluginInstance = toolbarPlugin({});
   const { Toolbar } = toolbarPluginInstance;
+  
+  
 
   return (
-    <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
+    <Worker workerUrl={`https://unpkg.com/pdfjs-dist@${pdfjsVersion}/build/pdf.worker.min.js`}>
       <div
         style={{
           height: "100vh",
