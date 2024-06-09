@@ -21,5 +21,7 @@ class Settings(BaseSettings):
 
     openai_api_key: str
 
+    port: int = 8000
+
 
 ENV_VARS = Settings()
