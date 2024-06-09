@@ -7,6 +7,7 @@ let cachedSession: Session | null = null;
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [Google],
+  secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
     async jwt({ token, account }) {
       const customToken = token as JWT;
