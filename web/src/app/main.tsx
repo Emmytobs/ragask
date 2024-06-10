@@ -3,8 +3,9 @@ import { useSession } from "next-auth/react";
 import { SWRConfig } from "swr";
 
 export default function Main({ children }: { children: React.ReactNode }) {
-const {data: session} = useSession()
-if (!session) return <div>Loading...</div>
+const {data: session, status} = useSession()
+console.log("session", session)
+if (!session) return <div>Loading in main...</div>
 
   return (
     <div className="flex flex-col h-screen">

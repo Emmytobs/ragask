@@ -17,7 +17,7 @@ export default function Home() {
   }, [files]);
   
   if(isLastAccessedPdfsLoading) {
-    return <div>Loading</div>
+    return <div>Loading last accessed pdfs...</div>
   }
   
 return (
