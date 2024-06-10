@@ -25,7 +25,7 @@ const ChatWindow = ({ currentFile }: { currentFile: IFile }) => {
       }
       if (currentFile) {
         events = new EventSourcePolyfill(
-          `http://localhost:8000/api/v1/documents/pdf/chat/${currentFile.id}?query=${userMessage}`,
+          `${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/documents/pdf/chat/${currentFile.id}?query=${userMessage}`,
           { headers: { Authorization: `Bearer ${session?.jwt}` } }
         );
         events.onmessage = (event) => {
