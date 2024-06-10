@@ -10,6 +10,7 @@ type ChatMessageData = {
   message: string;
 };
 
+
 const ChatWindow = ({ currentFile }: { currentFile: IFile }) => {
   const chatMessagesRef = useRef<HTMLDivElement>(null);
   const { data: session } = useSession();
