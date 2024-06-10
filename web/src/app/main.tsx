@@ -1,7 +1,11 @@
 "use client";
+import { useSession } from "next-auth/react";
 import { SWRConfig } from "swr";
 
 export default function Main({ children }: { children: React.ReactNode }) {
+const {data: session} = useSession()
+if (!session) return <div>Loading...</div>
+
   return (
     <div className="flex flex-col h-screen">
       <div className="flex-1 h-screen">
@@ -10,7 +14,14 @@ export default function Main({ children }: { children: React.ReactNode }) {
             value={{
               refreshInterval: 3000,
               fetcher: (resource, init) =>
-                fetch(`http://localhost:8000/api/v1/${resource}`, init).then((res) => res.json()),
+                fetch(`http://localhost:8000/api/v1/${resource}`, {
+                  ...init,
+                  headers: {
+                    ...init?.headers,
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${session.jwt}`,
+                  },
+                }).then((res) => res.json()),
             }}
           >
             {children}

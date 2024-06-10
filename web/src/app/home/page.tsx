@@ -5,16 +5,20 @@ import "@react-pdf-viewer/core/lib/styles/index.css";
 import { PdfTabs } from "@/components/pdf/tabs";
 import { FileDropzone } from "@/components/file-drop-zone";
 import { useFileUpload } from "@/hooks/file-upload";
-import {  useEffect, useState } from "react";
+import {  use, useEffect, useState } from "react";
 import { IFile } from "@/interfaces/IFile";
 
 export default function Home() {
-  const { files, onFileUploaded, onRemoveFileFromViewTab } = useFileUpload();
+  const { files, onFileUploaded, onRemoveFileFromViewTab, isLastAccessedPdfsLoading } = useFileUpload();
   const [currentFile, setCurrentFile] = useState<IFile>(files[0]);
 
   useEffect(() => {
     setCurrentFile(files[0]);
   }, [files]);
+  
+  if(isLastAccessedPdfsLoading) {
+    return <div>Loading</div>
+  }
   
 return (
     <>

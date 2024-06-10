@@ -135,12 +135,51 @@ async def _upload_pdf_document(document: CreateDocument, user: User):
     return result
 
 
+async def _add_document_to_last_accessed_documents(user_id: str, document_id: str):
+    user = await User.find_one(User.id == user_id)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User does not exist"
+        )
+    last_accessed_pdfs = user.last_accessed_pdfs + [PydanticObjectId(document_id)]
+    result = await User.find_one(User.id == user_id).update(
+        {"$set": {"last_accessed_pdfs": last_accessed_pdfs}}
+    )
+    logger.info("Last accessed pdfs: %s", result)
+    logger.info("Result from marking document as last accessed: %s", result)
+
+
+@router.get("/last-accessed", response_description="Get last accessed documents")
+async def get_last_accessed_documents(request: Request):
+    user = await User.find_one(User.id == request.state.user.id)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User does not exist"
+        )
+    documents_information = []
+    for doc in user.last_accessed_pdfs:
+        document = await Document.find_one({"_id": doc})
+        documents_information.append(
+            {
+                "id": str(document.id),
+                "name": document.name,
+                "type": document.type,
+                "num_pages": document.num_pages,
+                "storage_id": document.storage_id,
+            }
+        )
+    return {"last_accessed_docs": documents_information}
+
+
 @router.post("/upload", response_description="Upload file")
 async def process_pdf_document(
     document: CreateDocument, request: Request, background_tasks: BackgroundTasks
 ):
     logger.info("Uploading document")
     uploaded_document = await _upload_pdf_document(document, request.state.user)
+    await _add_document_to_last_accessed_documents(
+        request.state.user.id, uploaded_document.id
+    )
 
     logger.info("Extracting embeddings")
     background_tasks.add_task(_extract_embeddings, uploaded_document.id)

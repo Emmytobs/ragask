@@ -1,28 +1,33 @@
-import { firebaseConfig } from "@/app/firebase";
+import { firebaseConfig, firebaseStorage } from "@/app/firebase";
 import { IFile, ICreateFileApi } from "@/interfaces/IFile";
 import { uploadToCloudStorage } from "@/lib/storage-utils";
-import {  useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import useSWRMutation from "swr/mutation";
 import { useSession } from "next-auth/react";
+import useSWR from "swr";
+import { getDownloadURL, ref } from "firebase/storage";
 
 interface IFileUploadMutation extends ICreateFileApi {
   jwt?: string;
 }
 
-async function uploadFileRequest(url: string, { arg }: { arg: IFileUploadMutation  }) {
-  const {jwt, ...rest} = arg;
+async function uploadFileRequest(
+  url: string,
+  { arg }: { arg: IFileUploadMutation }
+) {
+  const { jwt, ...rest } = arg;
   return fetch(url, {
     method: "POST",
     headers: {
-      "Authorization": `Bearer ${jwt}`,
+      Authorization: `Bearer ${jwt}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify( rest ),
+    body: JSON.stringify(rest),
   }).then((res) => res.json());
 }
 
 export const useFileUpload = () => {
-  const {data: session} = useSession();
+  const { data: session } = useSession();
   const [filesState, setFilesState] = useState<IFile[]>([]);
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
 
@@ -31,11 +36,32 @@ export const useFileUpload = () => {
     uploadFileRequest
   );
 
+  const { data, isLoading: isLastAccessedPdfsLoading } = useSWR("documents/pdf/last-accessed");
+  useEffect(() => {
+    if (data?.last_accessed_docs?.length > 0) {
+      const loadDocs = async () => {
+        const docs = await Promise.all(
+          data.last_accessed_docs
+            .filter(
+              (doc: any) =>
+                !filesState.some((existingDoc) => existingDoc.id === doc.id)
+            )
+            .map(async (doc: any) => ({
+              ...doc,
+              storage_url: await getDownloadURL(ref(firebaseStorage, doc.name)),
+            }))
+        );
+        setFilesState((prev) => [...prev, ...docs]);
+      };
+
+      loadDocs();
+    }
+  }, [data]);
 
   useEffect(() => {
     if (session && pendingFiles.length > 0) {
       onFileUploaded(pendingFiles).then(() => {
-        setPendingFiles([]); 
+        setPendingFiles([]);
       });
     }
   }, [session, pendingFiles]);
@@ -47,7 +73,7 @@ export const useFileUpload = () => {
 
   const onFileUploaded = async (files: File[]) => {
     if (!session?.jwt) {
-      setPendingFiles(files); 
+      setPendingFiles(files);
       return { files: [] };
     }
 
@@ -66,7 +92,8 @@ export const useFileUpload = () => {
           type,
           size,
         };
-        const data = await trigger({...fileMetaData, jwt: session.jwt});
+        console.log("Storage url", storage_url);
+        const data = await trigger({ ...fileMetaData, jwt: session.jwt });
         return { ...fileMetaData, storage_url, id: data.document_id };
       })
     );
@@ -74,5 +101,5 @@ export const useFileUpload = () => {
     return { files: filesWithStorageInfo };
   };
 
-  return { files: filesState, onFileUploaded, onRemoveFileFromViewTab };
+  return { files: filesState, onFileUploaded, onRemoveFileFromViewTab, isLastAccessedPdfsLoading};
 };
