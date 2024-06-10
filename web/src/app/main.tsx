@@ -1,10 +1,15 @@
 "use client";
 import { useSession } from "next-auth/react";
+import { useEffect } from "react";
 import { SWRConfig } from "swr";
 
 export default function Main({ children }: { children: React.ReactNode }) {
-const {data: session, status} = useSession()
-console.log("session", session)
+const {data: session} = useSession()
+
+useEffect(() => {
+  if (!session) return  
+}, [session])
+
 if (!session) return <div>Loading in main...</div>
 
   return (
