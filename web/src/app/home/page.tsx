@@ -5,7 +5,7 @@ import "@react-pdf-viewer/core/lib/styles/index.css";
 import { PdfTabs } from "@/components/pdf/tabs";
 import { FileDropzone } from "@/components/file-drop-zone";
 import { useFileUpload } from "@/hooks/file-upload";
-import {  use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { IFile } from "@/interfaces/IFile";
 
 export default function Home() {
