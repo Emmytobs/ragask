@@ -1,16 +1,22 @@
 "use client";
 import { useSession } from "next-auth/react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { SWRConfig } from "swr";
 
 export default function Main({ children }: { children: React.ReactNode }) {
-const {data: session} = useSession()
+  const { data: session } = useSession();
 
-useEffect(() => {
-  if (!session) return  
-}, [session])
+  const [loaded, setLoaded] = useState(false);
 
-if (!session) return <div>Loading in main...</div>
+  useEffect(() => {
+    if (session !== undefined) {
+      setLoaded(true);
+    }
+  }, [session]);
+
+  if (!loaded) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="flex flex-col h-screen">
@@ -25,7 +31,7 @@ if (!session) return <div>Loading in main...</div>
                   headers: {
                     ...init?.headers,
                     "Content-Type": "application/json",
-                    Authorization: `Bearer ${session.jwt}`,
+                    Authorization: `Bearer ${session?.jwt}`,
                   },
                 }).then((res) => res.json()),
             }}
