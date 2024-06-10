@@ -23,5 +23,8 @@ class Settings(BaseSettings):
 
     port: int
 
+    langchain_api_key: str
+    langchain_project: str = "ragask"
+
 
 ENV_VARS = Settings()

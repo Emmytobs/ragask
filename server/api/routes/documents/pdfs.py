@@ -18,6 +18,7 @@ from cloud import get_storage_bucket
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain.schema.messages import HumanMessage, SystemMessage
+from langsmith import traceable
 
 
 from pypdf import PdfReader
@@ -197,6 +198,7 @@ async def _user_has_access_to_document(document_id: str, user_id: str):
 
 
 @router.get("/chat/{document_id}")
+@traceable(name="chat_with_document")
 async def chat_with_document(document_id: str, query: str, request: Request):
     logger.info("Chatting with document")
     user_has_access = await _user_has_access_to_document(

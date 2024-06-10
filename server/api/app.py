@@ -26,6 +26,10 @@ os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.path.join(
     base_dir, ENV_VARS.google_service_account
 )
 
+os.environ["LANGCHAIN_TRACING_V2"] = "true"
+os.environ["LANGCHAIN_API_KEY"] = ENV_VARS.langchain_api_key
+os.environ["LANGCHAIN_PROJECT"] = ENV_VARS.langchain_project
+
 
 @asynccontextmanager
 async def lifespan(fastapi_app: FastAPI):
