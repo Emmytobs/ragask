@@ -24,9 +24,8 @@ export default function Main({ children }: { children: React.ReactNode }) {
         <div className="flex-1 h-screen">
           <SWRConfig
             value={{
-              refreshInterval: 3000,
               fetcher: (resource, init) =>
-                fetch(`http://localhost:8000/api/v1/${resource}`, {
+                fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/${resource}`, {
                   ...init,
                   headers: {
                     ...init?.headers,
