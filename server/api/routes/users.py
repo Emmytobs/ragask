@@ -9,8 +9,8 @@ router = APIRouter()
 
 @router.post("/", response_description="Add user to database")
 async def add_user(user: User) -> User:
-    result = await user.insert()
-    return result
+    user = await user.insert()
+    return user
 
 
 @router.get("/{email}", response_description="Get user by email")
