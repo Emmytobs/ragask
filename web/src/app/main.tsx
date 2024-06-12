@@ -1,4 +1,5 @@
 "use client";
+import Loading from "@/components/loading";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { SWRConfig } from "swr";
@@ -15,7 +16,7 @@ export default function Main({ children }: { children: React.ReactNode }) {
   }, [session]);
 
   if (!loaded) {
-    return <div>Loading...</div>;
+    return <Loading/>;
   }
 
   return (

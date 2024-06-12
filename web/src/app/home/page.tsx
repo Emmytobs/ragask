@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import SideNav from "@/components/side-nav";
 import ChatWindow from "@/components/chat/window";
 import "@react-pdf-viewer/core/lib/styles/index.css";
@@ -7,20 +7,27 @@ import { FileDropzone } from "@/components/file-drop-zone";
 import { useFileUpload } from "@/hooks/file-upload";
 import { useEffect, useState } from "react";
 import { IFile } from "@/interfaces/IFile";
+import ScaleLoader from "react-spinners/ClipLoader";
+import Loading from "@/components/loading";
 
 export default function Home() {
-  const { files, onFileUploaded, onRemoveFileFromViewTab, isLastAccessedPdfsLoading } = useFileUpload();
+  const {
+    files,
+    onFileUploaded,
+    onRemoveFileFromViewTab,
+    isLastAccessedPdfsLoading,
+  } = useFileUpload();
   const [currentFile, setCurrentFile] = useState<IFile>(files[0]);
 
   useEffect(() => {
     setCurrentFile(files[0]);
   }, [files]);
-  
-  if(isLastAccessedPdfsLoading) {
-    return <div>Loading last accessed pdfs...</div>
+
+  if (isLastAccessedPdfsLoading) {
+    return <Loading />;
   }
-  
-return (
+
+  return (
     <>
       <div className="fixed left-0">
         <SideNav />
@@ -36,9 +43,9 @@ return (
               setCurrentFile={setCurrentFile}
             />
           ) : (
-          <div className="flex flex-col items-center justify-center h-screen">
-            <FileDropzone onFileUploaded={onFileUploaded} />
-          </div>
+            <div className="flex flex-col items-center justify-center h-screen">
+              <FileDropzone onFileUploaded={onFileUploaded} />
+            </div>
           )}
         </div>
         <div className="flex-1 h-screen">

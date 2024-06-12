@@ -31,6 +31,7 @@ export function PdfTabs(props: PdfTabsProps) {
           setCurrentFile(file);
         }
       }}
+      value={currentFile.name}
     >
       <ScrollArea className="rounded-md">
         <TabsList className="items-center w-full justify-stretch">
