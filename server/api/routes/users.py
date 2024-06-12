@@ -15,8 +15,8 @@ async def add_user(user: User) -> User:
 
 @router.get("/{email}", response_description="Get user by email")
 async def get_user(email: str) -> User:
-    result = await User.find_one({"email": email})
-    return result
+    test = await User.find_one({"email": email})
+    return test
 
 
 @router.get("/", response_description="Get all users")
