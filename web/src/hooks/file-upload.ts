@@ -1,11 +1,12 @@
 import { firebaseConfig, firebaseStorage } from "@/app/firebase";
 import { IFile, ICreateFileApi } from "@/interfaces/IFile";
 import { uploadToCloudStorage } from "@/lib/storage-utils";
-import { use, useEffect, useState } from "react";
+import {  useEffect, useState } from "react";
 import useSWRMutation from "swr/mutation";
 import { useSession } from "next-auth/react";
 import useSWR from "swr";
 import { getDownloadURL, ref } from "firebase/storage";
+import axios from "axios";
 
 interface IFileUploadMutation extends ICreateFileApi {
   jwt?: string;
@@ -36,7 +37,9 @@ export const useFileUpload = () => {
     uploadFileRequest
   );
 
-  const { data, isLoading: isLastAccessedPdfsLoading } = useSWR("documents/pdf/last-accessed");
+  const { data, isLoading: isLastAccessedPdfsLoading } = useSWR(
+    "documents/pdf/last-accessed"
+  );
   useEffect(() => {
     if (data?.last_accessed_docs?.length > 0) {
       const loadDocs = async () => {
@@ -66,8 +69,17 @@ export const useFileUpload = () => {
     }
   }, [session, pendingFiles]);
 
-  const onRemoveFileFromViewTab = (file: IFile) => {
+  const onRemoveFileFromViewTab = async (file: IFile) => {
     const updatedPdfFiles = filesState.filter((f) => f.name !== file.name);
+    await axios.patch(
+      `${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/documents/pdf/last-accessed/${file.id}`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${session?.jwt}`,
+        },
+      }
+    );
     setFilesState(updatedPdfFiles);
   };
 
@@ -101,5 +113,10 @@ export const useFileUpload = () => {
     return { files: filesWithStorageInfo };
   };
 
-  return { files: filesState, onFileUploaded, onRemoveFileFromViewTab, isLastAccessedPdfsLoading};
+  return {
+    files: filesState,
+    onFileUploaded,
+    onRemoveFileFromViewTab,
+    isLastAccessedPdfsLoading,
+  };
 };

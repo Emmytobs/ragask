@@ -150,6 +150,27 @@ async def _add_document_to_last_accessed_documents(user_id: str, document_id: st
     logger.info("Result from marking document as last accessed: %s", result)
 
 
+@router.patch(
+    "/last-accessed/{document_id}",
+    response_description="Remove a document from the last accessed list",
+)
+async def remove_document_from_last_accessed_documents(
+    document_id: str, request: Request
+):
+    user = await User.find_one(User.id == request.state.user.id)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User does not exist"
+        )
+    last_accessed_pdfs = user.last_accessed_pdfs.copy()
+    last_accessed_pdfs.remove(PydanticObjectId(document_id))
+    result = await User.find_one(User.id == user.id).update(
+        {"$set": {"last_accessed_pdfs": last_accessed_pdfs}}
+    )
+    logger.info("Last accessed pdfs: %s", result)
+    return {"message": "success"}
+
+
 @router.get("/last-accessed", response_description="Get last accessed documents")
 async def get_last_accessed_documents(request: Request):
     user = await User.find_one(User.id == request.state.user.id)
@@ -173,9 +194,7 @@ async def get_last_accessed_documents(request: Request):
 
 
 @router.post("/upload", response_description="Upload file")
-async def process_pdf_document(
-    document: CreateDocument, request: Request, background_tasks: BackgroundTasks
-):
+async def process_pdf_document(document: CreateDocument, request: Request):
     logger.info("Uploading document")
     uploaded_document = await _upload_pdf_document(document, request.state.user)
     await _add_document_to_last_accessed_documents(
@@ -183,7 +202,12 @@ async def process_pdf_document(
     )
 
     logger.info("Extracting embeddings")
-    background_tasks.add_task(_extract_embeddings, uploaded_document.id)
+    result = await _extract_embeddings(uploaded_document.id)
+    if not result:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Failed to extract embeddings",
+        )
     return {"message": "success", "document_id": str(uploaded_document.id)}
 
 
