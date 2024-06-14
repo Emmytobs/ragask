@@ -45,7 +45,7 @@ const ChatWindow = ({
           }
         };
 
-        events.addEventListener("end", (event) => {
+        events.addEventListener("end", (event: any) => {
         console.log("end event", event);
           setRelatedPages((prev) => prev.concat(JSON.parse(event.data)));
         });
