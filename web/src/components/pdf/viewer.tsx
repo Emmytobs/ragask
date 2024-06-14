@@ -1,7 +1,8 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 import { Viewer } from "@react-pdf-viewer/core";
 
+import { pageNavigationPlugin } from "@react-pdf-viewer/page-navigation";
 import { toolbarPlugin } from "@react-pdf-viewer/toolbar";
 import "@react-pdf-viewer/core/lib/styles/index.css";
 
@@ -14,13 +15,20 @@ const pdfjsVersion = packageJson.dependencies["pdfjs-dist"];
 
 type PDFProps = {
   fileUrl: string;
+  currentPage: number;
 };
 
 const PDF = (props: PDFProps) => {
-  const { fileUrl } = props;
+  const { fileUrl, currentPage } = props;
 
+  const pageNavigationPluginInstance = pageNavigationPlugin();
   const toolbarPluginInstance = toolbarPlugin({});
   const { Toolbar } = toolbarPluginInstance;
+  const { jumpToPage} = pageNavigationPluginInstance;
+
+  useEffect(() => {
+    jumpToPage(currentPage-1);
+  }, [currentPage]);
 
   return (
     <Worker
@@ -33,11 +41,12 @@ const PDF = (props: PDFProps) => {
           paddingBottom: "4rem",
         }}
       >
-        <Toolbar />
+        <Toolbar  />
         <Viewer
           fileUrl={fileUrl}
           renderLoader={() => <Loading />}
-          plugins={[toolbarPluginInstance]}
+          initialPage={currentPage-1}
+          plugins={[toolbarPluginInstance, pageNavigationPluginInstance]}
         />
       </div>
     </Worker>

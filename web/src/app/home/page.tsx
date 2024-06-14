@@ -7,7 +7,6 @@ import { FileDropzone } from "@/components/file-drop-zone";
 import { useFileUpload } from "@/hooks/file-upload";
 import { useEffect, useState } from "react";
 import { IFile } from "@/interfaces/IFile";
-import ScaleLoader from "react-spinners/ClipLoader";
 import Loading from "@/components/loading";
 
 export default function Home() {
@@ -18,6 +17,7 @@ export default function Home() {
     isLastAccessedPdfsLoading,
   } = useFileUpload();
   const [currentFile, setCurrentFile] = useState<IFile>(files[0]);
+  const [currentPage, setCurrentPage] = useState(0);
 
   useEffect(() => {
     setCurrentFile(files[0]);
@@ -41,6 +41,7 @@ export default function Home() {
               onRemoveFileFromViewTab={onRemoveFileFromViewTab}
               currentFile={currentFile}
               setCurrentFile={setCurrentFile}
+              currentPage={currentPage}
             />
           ) : (
             <div className="flex flex-col items-center justify-center h-screen">
@@ -49,7 +50,11 @@ export default function Home() {
           )}
         </div>
         <div className="flex-1 h-screen">
-          <ChatWindow currentFile={currentFile} />
+          <ChatWindow
+          currentPage={currentPage}
+            currentFile={currentFile}
+            setCurrentPage={setCurrentPage}
+          />
         </div>
       </div>
     </>

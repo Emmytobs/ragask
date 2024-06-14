@@ -8,15 +8,24 @@ import { useSession } from "next-auth/react";
 type ChatMessageData = {
   role: Role;
   message: string;
+  relatedPages?: number[];
 };
 
-
-const ChatWindow = ({ currentFile }: { currentFile: IFile }) => {
+const ChatWindow = ({
+  currentFile,
+  setCurrentPage,
+  currentPage,
+}: {
+  currentFile: IFile;
+  setCurrentPage: (page: number) => void;
+  currentPage: number;
+}) => {
   const chatMessagesRef = useRef<HTMLDivElement>(null);
   const { data: session } = useSession();
   const [userMessage, setUserMessage] = useState("");
   const [aiStreamingMessage, setAiStreamingMessage] = useState("");
-  
+  const [relatedPages, setRelatedPages] = useState<number[]>([]);
+
   useEffect(() => {
     let mount = true;
     let events: EventSourcePolyfill;
@@ -25,6 +34,7 @@ const ChatWindow = ({ currentFile }: { currentFile: IFile }) => {
         events.close();
       }
       if (currentFile) {
+      setRelatedPages([]);
         events = new EventSourcePolyfill(
           `${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/documents/pdf/chat/${currentFile.id}?query=${userMessage}`,
           { headers: { Authorization: `Bearer ${session?.jwt}` } }
@@ -34,6 +44,11 @@ const ChatWindow = ({ currentFile }: { currentFile: IFile }) => {
             setAiStreamingMessage((prev) => prev + event.data);
           }
         };
+
+        events.addEventListener("end", (event) => {
+          setRelatedPages((prev) => prev.concat(JSON.parse(event.data)));
+        });
+
         events.onerror = (err) => {
           events.close();
         };
@@ -54,10 +69,10 @@ const ChatWindow = ({ currentFile }: { currentFile: IFile }) => {
   useEffect(() => {
     setChatMessageData((prevMessages) => {
       const lastMessage = prevMessages[prevMessages.length - 1];
-
       const newMessage = {
         message: aiStreamingMessage,
         role: "ai",
+        relatedPages: Array.from(new Set(relatedPages)),
       } as ChatMessageData;
 
       if (lastMessage && lastMessage.role === "ai") {
@@ -65,7 +80,7 @@ const ChatWindow = ({ currentFile }: { currentFile: IFile }) => {
       }
       return [...prevMessages, newMessage];
     });
-  }, [aiStreamingMessage]);
+  }, [aiStreamingMessage, relatedPages]);
 
   const initialMessages: ChatMessageData[] = [];
 
@@ -76,7 +91,8 @@ const ChatWindow = ({ currentFile }: { currentFile: IFile }) => {
     scrollToBottomOfChatWindow();
   }, [chatMessageData.length, aiStreamingMessage]);
 
-  const chatIsEmpty = chatMessageData.filter(({ message }) => message !== "").length == 0;
+  const chatIsEmpty =
+    chatMessageData.filter(({ message }) => message !== "").length == 0;
 
   const onAddMessage = async (message: string) => {
     setUserMessage(message);
@@ -111,15 +127,21 @@ const ChatWindow = ({ currentFile }: { currentFile: IFile }) => {
       >
         {chatMessageData
           .filter(({ message }) => message !== "")
-          .map(({ role, message }, index) => (
-            <ChatMessage key={index} role={role} message={message} />
+          .map(({ role, message, relatedPages }, index) => (
+            <ChatMessage
+              key={index}
+              role={role}
+              message={message}
+              relatedPages={relatedPages}
+              setCurrentPage={setCurrentPage}
+            />
           ))}
         {chatIsEmpty ? (
           <div className="text-center">Start by sending a message!</div>
         ) : null}
       </div>
       <div className="flex-[0_0_60px] bg-white py-4">
-        <Textarea onAddMessage={onAddMessage} disable={!currentFile}/>
+        <Textarea onAddMessage={onAddMessage} disable={!currentFile} />
       </div>
     </div>
   );

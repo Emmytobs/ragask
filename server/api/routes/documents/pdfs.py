@@ -237,6 +237,7 @@ async def chat_with_document(document_id: str, query: str, request: Request):
     docs = await DocumentVectors.get_related_chunks(query, document_id)
 
     context = "\n\n".join([doc["page_content"] for doc in docs])
+    pages = [doc["metadata"]["page"] for doc in docs]
 
     chat = ChatOpenAI(model="gpt-3.5-turbo-0125", api_key=ENV_VARS.openai_api_key)
 
@@ -253,6 +254,7 @@ async def chat_with_document(document_id: str, query: str, request: Request):
         try:
             for chat_chunk in chat.stream(messages):
                 yield f"data: {chat_chunk.content}\n\n"
+            yield f"event: end\ndata: {f'{pages}'}\n\n"
         except asyncio.CancelledError as e:
             logger.error("Llm stream cancelled %s", request.client)
             raise e

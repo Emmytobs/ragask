@@ -11,6 +11,7 @@ type PdfTabsProps = {
   onRemoveFileFromViewTab: (file: IFile) => void;
   currentFile: IFile;
   setCurrentFile: (file: IFile) => void;
+  currentPage: number;
 };
 
 export function PdfTabs(props: PdfTabsProps) {
@@ -20,6 +21,7 @@ export function PdfTabs(props: PdfTabsProps) {
     onRemoveFileFromViewTab,
     currentFile,
     setCurrentFile,
+    currentPage,
   } = props;
 
   return pdfFiles.length > 0 ? (
@@ -51,7 +53,7 @@ export function PdfTabs(props: PdfTabsProps) {
       </ScrollArea>
       {pdfFiles.map((file) => (
         <TabsContent key={file.name} value={file.name}>
-          <PDF fileUrl={file.storage_url}></PDF>
+          <PDF fileUrl={file.storage_url} currentPage={currentPage} />
         </TabsContent>
       ))}
     </Tabs>
