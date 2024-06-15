@@ -1,7 +1,7 @@
 """Module for handling user routes in the API."""
 
 from fastapi import APIRouter
-from models.users import User
+from users.models import User
 
 
 router = APIRouter()

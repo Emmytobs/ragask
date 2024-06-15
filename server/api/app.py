@@ -6,9 +6,9 @@ import uuid
 
 from config import ENV_VARS
 from database import init_db
-from routes.api_v1 import api_v1_router
+
+from api import api_v1_router
 from app_logging import logger
-from middlewares.validate_jwt import validate_jwt
 
 from fastapi import Depends, FastAPI
 from fastapi.concurrency import asynccontextmanager
@@ -17,6 +17,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from dotenv import load_dotenv
 from starlette.middleware.sessions import SessionMiddleware
+
+from users.service import validate_jwt
 
 load_dotenv()
 

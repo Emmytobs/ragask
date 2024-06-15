@@ -1,10 +1,10 @@
 from typing import List
 from beanie import Document, PydanticObjectId
 from fastapi.encoders import jsonable_encoder
-from pydantic import BaseModel
 from bson import ObjectId
 
 from embeddings import EMBEDDINGS_MODEL
+from vectors.schemas import DocumentMetadata
 
 
 def custom_jsonable_encoder(obj):
@@ -15,16 +15,6 @@ def custom_jsonable_encoder(obj):
     if isinstance(obj, dict):
         return {key: custom_jsonable_encoder(value) for key, value in obj.items()}
     return jsonable_encoder(obj)
-
-
-class DocumentMetadata(BaseModel):
-    source: str
-    page: int
-
-
-class QueryResult(BaseModel):
-    page_content: str
-    metadata: DocumentMetadata
 
 
 class DocumentVectors(Document):

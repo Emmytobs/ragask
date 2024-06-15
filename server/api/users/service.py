@@ -3,9 +3,10 @@
 from typing import Any
 import jwt
 
-from models.users import User
 from config import ENV_VARS
 from app_logging import logger
+
+from users.models import User
 
 from google.oauth2 import id_token
 from google.auth.transport import requests

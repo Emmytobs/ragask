@@ -33,12 +33,12 @@ export const useFileUpload = () => {
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
 
   const { trigger } = useSWRMutation(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/documents/pdf/upload`,
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/documents/upload`,
     uploadFileRequest
   );
 
   const { data, isLoading: isLastAccessedPdfsLoading } = useSWR(
-    "documents/pdf/last-accessed"
+    "documents/last-accessed"
   );
   useEffect(() => {
     if (data?.last_accessed_docs?.length > 0) {
@@ -72,7 +72,7 @@ export const useFileUpload = () => {
   const onRemoveFileFromViewTab = async (file: IFile) => {
     const updatedPdfFiles = filesState.filter((f) => f.name !== file.name);
     await axios.patch(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/documents/pdf/last-accessed/${file.id}`,
+      `${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/documents/last-accessed/${file.id}`,
       {},
       {
         headers: {
@@ -104,7 +104,6 @@ export const useFileUpload = () => {
           type,
           size,
         };
-        console.log("Storage url", storage_url);
         const data = await trigger({ ...fileMetaData, jwt: session.jwt });
         return { ...fileMetaData, storage_url, id: data.document_id };
       })

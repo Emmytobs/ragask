@@ -34,9 +34,9 @@ const ChatWindow = ({
         events.close();
       }
       if (currentFile) {
-      setRelatedPages([]);
+        setRelatedPages([]);
         events = new EventSourcePolyfill(
-          `${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/documents/pdf/chat/${currentFile.id}?query=${userMessage}`,
+          `${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/documents/chat/${currentFile.id}?query=${userMessage}`,
           { headers: { Authorization: `Bearer ${session?.jwt}` } }
         );
         events.onmessage = (event) => {
@@ -46,7 +46,7 @@ const ChatWindow = ({
         };
 
         events.addEventListener("end", (event: any) => {
-        console.log("end event", event);
+          console.log("end event", event);
           setRelatedPages((prev) => prev.concat(JSON.parse(event.data)));
         });
 
