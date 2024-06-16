@@ -7,17 +7,13 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 from pypdf import PdfReader
 
-from app_logging import logger
-
-from embeddings import EMBEDDINGS_MODEL
-from documents.models import Document
-from documents.schemas import CreateDocument
-
-from users.models import User
-
-from vectors.models import DocumentVectors
-
-from gcp.service import get_storage_bucket
+from src.app_logging import logger
+from src.embeddings import EMBEDDINGS_MODEL
+from src.documents.models import Document
+from src.documents.schemas import CreateDocument
+from src.users.models import User
+from src.vectors.models import DocumentVectors
+from src.gcp.service import get_storage_bucket
 
 
 def _get_num_pages_from_pdf(document: Document) -> int:

@@ -4,21 +4,18 @@ import os
 import uuid
 
 
-from config import ENV_VARS
-from database import init_db
-
-from api import api_v1_router
-from app_logging import logger
-
 from fastapi import Depends, FastAPI
 from fastapi.concurrency import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
 
-
 from dotenv import load_dotenv
 from starlette.middleware.sessions import SessionMiddleware
 
-from users.service import validate_jwt
+from src.config import ENV_VARS
+from src.database import init_db
+from src.api import api_v1_router
+from src.app_logging import logger
+from src.users.service import validate_jwt
 
 load_dotenv()
 

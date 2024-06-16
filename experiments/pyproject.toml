@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "experiments"
+version = "0.1.0"
+description = ""
+authors = ["sam-ayo <sam-ayo>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11, <3.13"
+ragas = "^0.1.9"
+pydantic-settings = "^2.3.3"
+unstructured = {extras = ["pdf"], version = "^0.14.6"}
+pypdf = "^4.2.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

@@ -1,13 +1,13 @@
 """Module for initializing the database connection and setting up Beanie with FastAPI."""
 
-from config import ENV_VARS
-
 from beanie import init_beanie
 from motor.motor_asyncio import AsyncIOMotorClient
 
-from documents.models import Document
-from users.models import User
-from vectors.models import DocumentVectors
+from src.config import ENV_VARS
+from src.documents.models import Document
+from src.users.models import User
+from src.vectors.models import DocumentVectors
+
 
 client = AsyncIOMotorClient(ENV_VARS.mongodb_uri)
 db = client.ragask

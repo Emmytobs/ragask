@@ -1,7 +1,7 @@
 """Module for interacting with Google Cloud Storage."""
 
 from google.cloud import storage
-from config import ENV_VARS
+from src.config import ENV_VARS
 
 
 def get_storage_bucket():

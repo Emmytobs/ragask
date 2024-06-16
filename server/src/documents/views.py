@@ -6,23 +6,22 @@ from fastapi import APIRouter, HTTPException, Request, status
 from starlette.responses import StreamingResponse
 from langchain_openai import ChatOpenAI
 
-from app_logging import logger
-from config import ENV_VARS
 
 from langchain.schema.messages import HumanMessage, SystemMessage
 from langsmith import traceable
-from documents.models import Document
-from documents.schemas import CreateDocument
 
-
-from documents.service import (
+from src.app_logging import logger
+from src.config import ENV_VARS
+from src.documents.models import Document
+from src.documents.schemas import CreateDocument
+from src.documents.service import (
     _user_has_access_to_document,
     add_document_to_last_accessed_documents,
     extract_embeddings,
     upload_pdf_document,
 )
-from users.models import User
-from vectors.models import DocumentVectors
+from src.users.models import User
+from src.vectors.models import DocumentVectors
 
 
 router = APIRouter()

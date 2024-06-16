@@ -1,8 +1,9 @@
 """API version 1 routing configuration."""
 
 from fastapi import APIRouter
-import documents.views as documents
-import users.views as users
+
+import src.documents.views as documents
+import src.users.views as users
 
 
 api_v1_router = APIRouter()

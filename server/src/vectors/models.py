@@ -3,8 +3,8 @@ from beanie import Document, PydanticObjectId
 from fastapi.encoders import jsonable_encoder
 from bson import ObjectId
 
-from embeddings import EMBEDDINGS_MODEL
-from vectors.schemas import DocumentMetadata
+from src.embeddings import EMBEDDINGS_MODEL
+from src.vectors.schemas import DocumentMetadata
 
 
 def custom_jsonable_encoder(obj):

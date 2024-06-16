@@ -3,10 +3,10 @@
 from typing import Any
 import jwt
 
-from config import ENV_VARS
-from app_logging import logger
+from src.config import ENV_VARS
+from src.app_logging import logger
 
-from users.models import User
+from src.users.models import User
 
 from google.oauth2 import id_token
 from google.auth.transport import requests

@@ -1,6 +1,6 @@
 from langchain_openai import OpenAIEmbeddings
 
-from config import ENV_VARS
+from src.config import ENV_VARS
 
 
 EMBEDDINGS_MODEL = OpenAIEmbeddings(
