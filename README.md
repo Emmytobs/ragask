@@ -1,3 +1,6 @@
+# Start Server
+`poetry run start`
+
 # Docs
 
 ## Run with Docker
