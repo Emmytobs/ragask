@@ -1,6 +1,7 @@
 """Configuration settings for the server"""
 
 from pydantic_settings import BaseSettings
+from os import path
 
 
 class Settings(BaseSettings):
@@ -27,4 +28,5 @@ class Settings(BaseSettings):
     langchain_project: str = "ragask"
 
 
-ENV_VARS = Settings()
+env_var_file_path = path.join(path.dirname(__file__), ".env")
+ENV_VARS = Settings(_env_file=env_var_file_path, _env_file_encoding='utf-8')
