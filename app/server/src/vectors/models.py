@@ -38,7 +38,7 @@ class DocumentVectors(Document):
                         "index": "vector_index",
                         "path": "embeddings",
                         "queryVector": query_embeddings,
-                        "numCandidates": 50,
+                        "numCandidates": 2000,
                         "limit": 50,
                         "filter": {"document_id": ObjectId(document_id)},
                     }
