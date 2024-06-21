@@ -19,6 +19,7 @@ from src.documents.service import (
     add_document_to_last_accessed_documents,
     extract_embeddings,
     upload_pdf_document,
+    existing_document
 )
 from src.users.models import User
 from src.vectors.models import DocumentVectors
@@ -79,21 +80,29 @@ async def get_last_accessed_documents(request: Request):
 
 
 @router.post("/upload", response_description="Upload file")
-async def process_pdf_document(document: CreateDocument, request: Request):
-    logger.info("Uploading document")
-    uploaded_document = await upload_pdf_document(document, request.state.user)
+async def process_pdf_document(documentDTO: CreateDocument, request: Request):
+    document: Document
+    document = await existing_document(documentDTO, request.state.user)
+    user_has_existing_document = document is not None
+    if user_has_existing_document:
+        logger.info("Document exists for user")
+    else:
+        logger.info("Uploading document")
+        document = await upload_pdf_document(documentDTO, request.state.user)
+    
+    if not document.is_indexed:
+        logger.info("Extracting embeddings")
+        result = await extract_embeddings(document.id)
+        if not result:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Failed to extract embeddings",
+            )
+    
     await add_document_to_last_accessed_documents(
-        request.state.user.id, uploaded_document.id
+        request.state.user.id, document.id
     )
-
-    logger.info("Extracting embeddings")
-    result = await extract_embeddings(uploaded_document.id)
-    if not result:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Failed to extract embeddings",
-        )
-    return {"message": "success", "document_id": str(uploaded_document.id)}
+    return {"message": "success", "document_id": str(document.id)}
 
 
 @router.get("/chat/{document_id}")

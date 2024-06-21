@@ -108,8 +108,12 @@ async def extract_embeddings(
     }
 
 
-async def upload_pdf_document(document: CreateDocument, user: User):
+async def existing_document(document: CreateDocument, user: User) -> Document | None:
+    # Find any saved documents that match the name, size and type of the document being uploaded
+    existing_document = await Document.find_one({"name": document.name, "size": document.size, "type": document.type, "uploaded_by": user.id}) 
+    return existing_document
 
+async def upload_pdf_document(document: CreateDocument, user: User) -> Document:
     document = Document(**document.model_dump())
 
     if document.type != "application/pdf":
