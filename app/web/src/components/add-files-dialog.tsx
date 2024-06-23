@@ -11,14 +11,18 @@ import { FileDropzone } from "@/components/file-drop-zone";
 import { Icons } from "@/components/icons";
 import { useFileUpload } from "@/hooks/file-upload";
 import Loading from "@/components/loading";
+import { useState } from "react";
 
 function AddFilesDialog() {
   const { onFileUploaded, isUploading } = useFileUpload();
+  const [isOpen, setIsOpen] = useState(false);
   const handleFileUpload = async (files: File[]) => {
-    onFileUploaded(files);
+    onFileUploaded(files).then(() => {
+      setIsOpen(false);
+    });
   };
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger>
         <Icons.fileUpload color="black" />
       </DialogTrigger>
