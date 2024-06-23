@@ -2,7 +2,6 @@ import React from "react";
 import { Separator } from "@/components/ui/separator";
 import { UserDropDown } from "@/components/user-menu";
 import Link from "next/link";
-import { Icons } from "@/components/icons";
 import { Logo } from "@/components/logo";
 import {
   Sheet,
@@ -12,15 +11,8 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { FileDropzone } from "@/components/file-drop-zone";
+import { Icons } from "@/components/icons";
+import AddFilesDialog from "@/components/add-files-dialog";
 
 function NavLink({
   href,
@@ -75,25 +67,6 @@ function SideNavSheet({
   );
 }
 
-function AddFilesDialog() {
-  return (
-    <Dialog>
-      <DialogTrigger>
-        <Icons.fileUpload color="black" />
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Add Files </DialogTitle>
-          <DialogDescription>
-            <FileDropzone
-              onFileUploaded={(uploadedFiles) => console.log(uploadedFiles)}
-            />
-          </DialogDescription>
-        </DialogHeader>
-      </DialogContent>
-    </Dialog>
-  );
-}
 
 export default function SideNav() {
   return (
@@ -111,11 +84,11 @@ export default function SideNav() {
       <div>
         <Separator />
         <div className="space-y-16">
-          <NavLink
+          {/* <NavLink
             href="/upgrade"
             icon={Icons.subscriptionUpgrade}
             iconColor="black"
-          />
+          /> */}
           <div className="my-4 flex flex-col items-center justify-center cursor-pointer">
             <UserDropDown />
           </div>

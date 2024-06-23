@@ -1,12 +1,13 @@
 import { firebaseConfig, firebaseStorage } from "@/app/firebase";
 import { IFile, ICreateFileApi } from "@/interfaces/IFile";
 import { uploadToCloudStorage } from "@/lib/storage-utils";
-import {  useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import useSWRMutation from "swr/mutation";
 import { useSession } from "next-auth/react";
 import useSWR from "swr";
 import { getDownloadURL, ref } from "firebase/storage";
 import axios from "axios";
+import useFileStore from "@/stores/files";
 
 interface IFileUploadMutation extends ICreateFileApi {
   jwt?: string;
@@ -29,8 +30,8 @@ async function uploadFileRequest(
 
 export const useFileUpload = () => {
   const { data: session } = useSession();
-  const [filesState, setFilesState] = useState<IFile[]>([]);
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
+  const [isUploading, setIsUploading] = useState(false); 
 
   const { trigger } = useSWRMutation(
     `${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/documents/upload`,
@@ -40,6 +41,9 @@ export const useFileUpload = () => {
   const { data, isLoading: isLastAccessedPdfsLoading } = useSWR(
     "documents/last-accessed"
   );
+
+  const { files, addFiles,  removeFile } = useFileStore(); 
+
   useEffect(() => {
     if (data?.last_accessed_docs?.length > 0) {
       const loadDocs = async () => {
@@ -47,14 +51,14 @@ export const useFileUpload = () => {
           data.last_accessed_docs
             .filter(
               (doc: any) =>
-                !filesState.some((existingDoc) => existingDoc.id === doc.id)
+                !files.some((existingDoc) => existingDoc.id === doc.id)
             )
             .map(async (doc: any) => ({
               ...doc,
               storage_url: await getDownloadURL(ref(firebaseStorage, doc.name)),
             }))
         );
-        setFilesState((prev) => [...prev, ...docs]);
+        addFiles(docs);
       };
 
       loadDocs();
@@ -63,31 +67,19 @@ export const useFileUpload = () => {
 
   useEffect(() => {
     if (session && pendingFiles.length > 0) {
-      onFileUploaded(pendingFiles).then(() => {
+      handleFileUpload(pendingFiles).then(() => {
         setPendingFiles([]);
       });
     }
   }, [session, pendingFiles]);
 
-  const onRemoveFileFromViewTab = async (file: IFile) => {
-    const updatedPdfFiles = filesState.filter((f) => f.name !== file.name);
-    await axios.patch(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/documents/last-accessed/${file.id}`,
-      {},
-      {
-        headers: {
-          Authorization: `Bearer ${session?.jwt}`,
-        },
-      }
-    );
-    setFilesState(updatedPdfFiles);
-  };
-
-  const onFileUploaded = async (files: File[]) => {
+  const handleFileUpload = async (files: File[]) => {
     if (!session?.jwt) {
       setPendingFiles(files);
       return { files: [] };
     }
+
+    setIsUploading(true); 
 
     const filesWithStorageInfo: IFile[] = await Promise.all(
       files.map(async (file) => {
@@ -108,14 +100,30 @@ export const useFileUpload = () => {
         return { ...fileMetaData, storage_url, id: data.document_id };
       })
     );
-    setFilesState(filesWithStorageInfo);
+
+    addFiles(filesWithStorageInfo); 
+    setIsUploading(false); 
     return { files: filesWithStorageInfo };
   };
 
+  const onRemoveFileFromViewTab = async (file: IFile) => {
+    await axios.patch(
+      `${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/documents/last-accessed/${file.id}`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${session?.jwt}`,
+        },
+      }
+    );
+    removeFile(file);
+  };
+
   return {
-    files: filesState,
-    onFileUploaded,
+    files,
+    onFileUploaded: handleFileUpload,
     onRemoveFileFromViewTab,
     isLastAccessedPdfsLoading,
+    isUploading, 
   };
 };
