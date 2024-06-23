@@ -27,6 +27,7 @@ const refreshGoogleAccessToken = async (token: JWT) => {
 
     return {
       ...token,
+      jwt: responseTokens.id_token,
       access_token: responseTokens.access_token,
       expires_at: Math.floor(
         Date.now() / 1000 + (responseTokens.expires_in as number)
