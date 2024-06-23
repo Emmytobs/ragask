@@ -19,7 +19,7 @@ from src.documents.service import (
     add_document_to_last_accessed_documents,
     extract_embeddings,
     upload_pdf_document,
-    existing_document
+    existing_document,
 )
 from src.users.models import User
 from src.vectors.models import DocumentVectors
@@ -89,7 +89,7 @@ async def process_pdf_document(documentDTO: CreateDocument, request: Request):
     else:
         logger.info("Uploading document")
         document = await upload_pdf_document(documentDTO, request.state.user)
-    
+
     if not document.is_indexed:
         logger.info("Extracting embeddings")
         result = await extract_embeddings(document.id)
@@ -98,10 +98,8 @@ async def process_pdf_document(documentDTO: CreateDocument, request: Request):
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Failed to extract embeddings",
             )
-    
-    await add_document_to_last_accessed_documents(
-        request.state.user.id, document.id
-    )
+
+    await add_document_to_last_accessed_documents(request.state.user.id, document.id)
     return {"message": "success", "document_id": str(document.id)}
 
 
@@ -127,9 +125,12 @@ async def chat_with_document(document_id: str, query: str, request: Request):
 
     messages = [
         SystemMessage(
-            content=f"You're a helpful assistant. \
-             Given the content of this document answer the human question.\
-            Make sure all your answers are in markdown: Context: {context}. Return only the markdown. For new lines add \n"
+            content=f"You are a helpful assistant. Given the content of this document, answer the human's question.\
+                Ensure all your responses are formatted in markdown.\
+                Always start your response with a markdown header and use proper markdown syntax for lists, code blocks, and other elements.\
+                Make sure use line breaks to seperate paragraphs or points \
+                Make sure the points you make are relevant to the question and the context of the document.\
+                Context: {context}"
         ),
         HumanMessage(content=query),
     ]
