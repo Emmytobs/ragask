@@ -75,6 +75,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
       session.jwt = token.jwt as string;
       const host = process.env.NEXT_PUBLIC_BASE_URL;
+      console.log('Session Jwt',session.jwt);
       const userInDb: IUser = (
         await axios.get(`${host}/api/v1/users/${session.user?.email}`, {
           headers: {
