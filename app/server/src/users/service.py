@@ -52,7 +52,6 @@ def _verify_google_token(token: str):
 
 async def validate_jwt(request: Request):
     token_with_bearer = request.headers.get("Authorization", "")
-    logger.info("token sent from frontend: %s", token_with_bearer)
     if not token_with_bearer:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
