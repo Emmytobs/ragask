@@ -84,11 +84,14 @@ export default function SideNav() {
       <div>
         <Separator />
         <div className="space-y-16">
-          {/* <NavLink
+        <div className="bg-purple-500 rounded-lg">
+          <NavLink
             href="/upgrade"
             icon={Icons.subscriptionUpgrade}
-            iconColor="black"
-          /> */}
+            iconColor="white"
+            className="hover:bg-purple-900"
+          />
+        </div>
           <div className="my-4 flex flex-col items-center justify-center cursor-pointer">
             <UserDropDown />
           </div>
