@@ -37,19 +37,19 @@ async def get_all_documents(request: Request):
 
 
 @router.patch(
-    "/last-accessed/{document_id}",
-    response_description="Remove a document from the last accessed list",
+    "/last-accessed",
+    response_description="Update signed-in user's last accessed documents",
 )
 async def remove_document_from_last_accessed_documents(
-    document_id: str, request: Request
+    document_ids: list[str],
+    request: Request
 ):
     user = await User.find_one(User.id == request.state.user.id)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="User does not exist"
         )
-    last_accessed_pdfs = user.last_accessed_pdfs.copy()
-    last_accessed_pdfs.remove(PydanticObjectId(document_id))
+    last_accessed_pdfs = list(map(lambda document_id:PydanticObjectId(document_id), document_ids))
     result = await User.find_one(User.id == user.id).update(
         {"$set": {"last_accessed_pdfs": last_accessed_pdfs}}
     )

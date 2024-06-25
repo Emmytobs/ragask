@@ -7,25 +7,43 @@ import { FileDropzone } from "@/components/file-drop-zone";
 import { useFileUpload } from "@/hooks/file-upload";
 import { useEffect, useState } from "react";
 import { IFile } from "@/interfaces/IFile";
-import Loading from "@/components/loading";
+import useSWRMutation from "swr/mutation";
+import axios from "axios";
+import { useSession } from "next-auth/react";
 
 export default function Home() {
   const {
     files,
     onFileUploaded,
-    onRemoveFileFromViewTab,
-    isLastAccessedPdfsLoading,
   } = useFileUpload();
   const [currentFile, setCurrentFile] = useState<IFile>(files[0]);
   const [currentPage, setCurrentPage] = useState(0);
+  const { data: session } = useSession();
+  const { trigger } = useSWRMutation(
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/documents/last-accessed`,
+    updateLastAccessedFiles
+  );
+
+  async function updateLastAccessedFiles(url: string) {
+    const result = await axios.patch(
+      url,
+      files.length ? files.map(file => file.id) : [],
+      {
+        headers: {
+          Authorization: `Bearer ${session?.jwt}`,
+        },
+      }
+    );
+    return result;
+  }
+
 
   useEffect(() => {
-    setCurrentFile(files[0]);
+    if (files.length) {
+      setCurrentFile(files[0]);
+    }
+    trigger()
   }, [files]);
-
-  if (isLastAccessedPdfsLoading) {
-    return <Loading />;
-  }
 
   return (
     <>
@@ -38,7 +56,6 @@ export default function Home() {
             <PdfTabs
               files={files}
               onFileUploaded={onFileUploaded}
-              onRemoveFileFromViewTab={onRemoveFileFromViewTab}
               currentFile={currentFile}
               setCurrentFile={setCurrentFile}
               currentPage={currentPage}

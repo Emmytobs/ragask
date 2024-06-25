@@ -6,7 +6,6 @@ import useSWRMutation from "swr/mutation";
 import { useSession } from "next-auth/react";
 import useSWR from "swr";
 import { getDownloadURL, ref } from "firebase/storage";
-import axios from "axios";
 import useFileStore from "@/stores/files";
 
 interface IFileUploadMutation extends ICreateFileApi {
@@ -74,55 +73,46 @@ export const useFileUpload = () => {
   }, [session, pendingFiles]);
 
   const handleFileUpload = async (files: File[]) => {
+    setIsUploading(true); 
     if (!session?.jwt) {
       setPendingFiles(files);
       return { files: [] };
     }
-
-    setIsUploading(true); 
-
-    const filesWithStorageInfo: IFile[] = await Promise.all(
-      files.map(async (file) => {
-        const result = await uploadToCloudStorage(file);
-        if (!result) {
-          throw new Error("Failed to upload to cloud storage");
-        }
-        const { storage_url } = result;
-        const { name, type, size } = file;
-
-        const fileMetaData = {
-          name,
-          storage_id: firebaseConfig.storageBucket!,
-          type,
-          size,
-        };
-        const data = await trigger({ ...fileMetaData, jwt: session.jwt });
-        return { ...fileMetaData, storage_url, id: data.document_id };
-      })
-    );
-
-    addFiles(filesWithStorageInfo); 
-    setIsUploading(false); 
-    return { files: filesWithStorageInfo };
-  };
-
-  const onRemoveFileFromViewTab = async (file: IFile) => {
-    await axios.patch(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/documents/last-accessed/${file.id}`,
-      {},
-      {
-        headers: {
-          Authorization: `Bearer ${session?.jwt}`,
-        },
-      }
-    );
-    removeFile(file);
+    
+    try {
+      const filesWithStorageInfo: IFile[] = await Promise.all(
+        files.map(async (file) => {
+          const result = await uploadToCloudStorage(file);
+          if (!result) {
+            throw new Error("Failed to upload to cloud storage");
+          }
+          const { storage_url } = result;
+          const { name, type, size } = file;
+  
+          const fileMetaData = {
+            name,
+            storage_id: firebaseConfig.storageBucket!,
+            type,
+            size,
+          };
+          const data = await trigger({ ...fileMetaData, jwt: session.jwt });
+          return { ...fileMetaData, storage_url, id: data.document_id };
+        })
+      );
+  
+      addFiles(filesWithStorageInfo); 
+      return { files: filesWithStorageInfo };
+    } catch (error) {
+      console.log({ error })
+      throw error;
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   return {
     files,
     onFileUploaded: handleFileUpload,
-    onRemoveFileFromViewTab,
     isLastAccessedPdfsLoading,
     isUploading, 
   };

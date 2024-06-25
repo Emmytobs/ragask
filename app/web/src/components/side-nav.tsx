@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Separator } from "@/components/ui/separator";
 import { UserDropDown } from "@/components/user-menu";
 import Link from "next/link";
@@ -13,6 +13,13 @@ import {
 } from "@/components/ui/sheet";
 import { Icons } from "@/components/icons";
 import AddFilesDialog from "@/components/add-files-dialog";
+import useSWR from "swr";
+import Loading from "./loading";
+import useFileStore from "@/stores/files";
+import { IFile } from "@/interfaces/IFile";
+import { getDownloadURL, ref } from "firebase/storage";
+import { firebaseStorage } from "@/app/firebase";
+import { Button } from "./ui/button";
 
 function NavLink({
   href,
@@ -66,6 +73,62 @@ function SideNavSheet({
     </div>
   );
 }
+function DocumentHistorySheet() {
+  const { data, isLoading } = useSWR("documents");
+  const addFiles = useFileStore((state) => state.addFiles)
+  const [files, setFiles] = useState<IFile[]>([])
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    async function getFiles() {
+      if (data) {
+        const _files = await Promise.all(
+          data.documents.map(async (doc: any) => ({
+            ...doc,
+            storage_url: await getDownloadURL(ref(firebaseStorage, doc.name)),
+          }))
+        )
+        setFiles(_files)
+      }
+    }
+    getFiles()
+  }, [data])
+
+  const handleFileClick = (file: IFile) => {
+    addFiles([file]);
+    setOpen(false)
+  }
+  
+  if (isLoading) return <Loading />
+  return (
+    <div
+      className={`py-4 rounded-lg px-4 hover:bg-gray-200 cursor-pointer`}
+    >
+      <Sheet open={open} onOpenChange={setOpen}>
+        <SheetTrigger className="flex items-center">
+          <Icons.fileHistory color={"black"} />
+        </SheetTrigger>
+        <SheetContent side="right">
+          <SheetHeader>
+            <SheetTitle>Uploaded files</SheetTitle>
+            {
+              files.map((file, index) => (
+                <Button 
+                  variant="link"
+                  className={"justify-start pl-0"}
+                  key={index} 
+                  onClick={() => handleFileClick(file)}
+                >
+                  {file.name}
+                </Button>
+              ))
+            }
+          </SheetHeader>
+        </SheetContent>
+      </Sheet>
+    </div>
+  );
+}
 
 
 export default function SideNav() {
@@ -76,7 +139,7 @@ export default function SideNav() {
       </div>
       <div className="space-y-16">
         <SideNavSheet icon={Icons.chatHistory} iconColor="black" />
-        <SideNavSheet icon={Icons.fileHistory} iconColor="black" />
+        <DocumentHistorySheet />
         <div className="flex flex-col items-center justify-center py-4 rounded-lg px-4 hover:bg-gray-200 cursor-pointer">
           <AddFilesDialog />
         </div>
