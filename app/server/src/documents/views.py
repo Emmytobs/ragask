@@ -40,7 +40,7 @@ async def get_all_documents(request: Request):
     "/last-accessed",
     response_description="Update signed-in user's last accessed documents",
 )
-async def remove_document_from_last_accessed_documents(
+async def update_last_access_documents(
     document_ids: list[str],
     request: Request
 ):
